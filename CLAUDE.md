@@ -1,41 +1,41 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+ไฟล์นี้ให้คำแนะนำแก่ Claude Code (claude.ai/code) เมื่อทำงานกับโค้ดในรีโพนี้
 
-## What this repository is
+## รีโพนี้คืออะไร
 
-This is **not a software codebase** — it is an [Obsidian](https://obsidian.md) vault used as the documentation system for a project called **Grade Runway**. There is no source code, no package manager, no build, lint, or test commands. All work here consists of reading and writing Markdown files under `docs/`.
+รีโพนี้ **ไม่ใช่ codebase ของซอฟต์แวร์** แต่เป็น vault ของ [Obsidian](https://obsidian.md) ที่ใช้เป็นระบบเอกสารของโปรเจกต์ชื่อ **Grade Runway** ไม่มีซอร์สโค้ด ไม่มี package manager ไม่มีคำสั่ง build, lint หรือ test งานทั้งหมดในรีโพนี้คือการอ่านและเขียนไฟล์ Markdown ภายใต้ `docs/`
 
-All documentation content is written in **Thai**. Match that language when editing or adding to existing docs unless the user asks otherwise.
+เนื้อหาเอกสารทั้งหมดเขียนเป็น **ภาษาไทย** ให้ใช้ภาษาเดียวกันเมื่อแก้ไขหรือเพิ่มเติมเอกสารเดิม เว้นแต่ผู้ใช้จะขอเป็นอย่างอื่น
 
-## Structure and workflow
+## โครงสร้างและลำดับการทำงาน
 
-Every folder under `docs/` has an `index.md` that explains its purpose and links to child folders/siblings using Obsidian wikilink syntax (`[[relative/path/index|Label]]`). When adding a new document, add a corresponding link from the relevant `index.md` files so the doc stays discoverable from the tree.
+ทุกโฟลเดอร์ภายใต้ `docs/` จะมีไฟล์ `index.md` ที่อธิบายจุดประสงค์ของโฟลเดอร์ และลิงก์ไปยังโฟลเดอร์ลูก/โฟลเดอร์ข้างเคียงด้วย syntax wikilink ของ Obsidian (`[[relative/path/index|Label]]`) เมื่อเพิ่มเอกสารใหม่ ให้เพิ่มลิงก์จาก `index.md` ที่เกี่ยวข้องด้วย เพื่อให้ยังค้นหาเอกสารนั้นเจอจากโครงสร้างต้นไม้
 
-The docs are organized around a linear project workflow, and folder numbering reflects that order:
+เอกสารถูกจัดวางตามลำดับการไหลของงานแบบเชิงเส้น และเลขนำหน้าโฟลเดอร์สะท้อนลำดับนั้น:
 
 ```
 01-requirements → 02-design → 03-testing → 04-retrospectives
                                    ↑
-                                05-log (written continuously throughout, not gated on any phase)
+                                05-log (บันทึกคู่ขนานตลอดทั้งโปรเจกต์ ไม่ผูกกับ phase ใด phase หนึ่ง)
 ```
 
-- **`docs/01-requirements/`** — starting point for any new feature/project.
-  - `01-spec/` — source-of-truth requirements: features, user stories, business rules, scope.
-  - `02-plan/` — roadmap/timeline/milestones derived from spec.
-  - `03-task/` — concrete, actionable task breakdown derived from plan.
-- **`docs/02-design/`** — design derived from requirements.
-  - `01-prototypes/` — UI/UX wireframes, mockups, user flows, design system basics.
-  - `02-technical/` — architecture, database schema, API/data contracts, tech choices + rationale.
-- **`docs/03-testing/`** — testing derived from design.
-  - `01-test-plan/` — test cases/scenarios, test data, in/out of scope.
-  - `02-test-result/` — actual pass/fail results, bugs found, fix status.
-- **`docs/04-retrospectives/`** — lessons learned after each phase/sprint/milestone, informed by test results and the log.
-- **`docs/05-log/`** — chronological changelog / decision log / notable events, updated continuously in parallel with the other phases (not sequential like the rest).
-- **`docs/00-archived/`** — superseded or cancelled documents. **Never delete a doc from the project — move it here instead** to preserve decision history.
+- **`docs/01-requirements/`** — จุดเริ่มต้นของทุกฟีเจอร์/โปรเจกต์ใหม่
+  - `01-spec/` — ข้อกำหนดต้นทาง (source of truth): ฟีเจอร์, user stories, business rules, ขอบเขตงาน
+  - `02-plan/` — roadmap/timeline/milestone ที่แตกมาจาก spec
+  - `03-task/` — งานย่อยที่ลงมือทำได้จริง แตกมาจากแผนงาน
+- **`docs/02-design/`** — การออกแบบที่ต่อยอดจากความต้องการ
+  - `01-prototypes/` — wireframe/mockup ของ UI/UX, user flow, พื้นฐาน design system
+  - `02-technical/` — architecture, database schema, API/data contract, การเลือกเทคโนโลยีพร้อมเหตุผล
+- **`docs/03-testing/`** — การทดสอบที่ต่อยอดจากการออกแบบ
+  - `01-test-plan/` — test case/scenario, test data, ขอบเขตที่ทดสอบและไม่ทดสอบ
+  - `02-test-result/` — ผล pass/fail จริง, บั๊กที่พบ, สถานะการแก้ไข
+- **`docs/04-retrospectives/`** — บทเรียนที่ได้หลังจบแต่ละ phase/sprint/milestone โดยอ้างอิงจากผลทดสอบและ log
+- **`docs/05-log/`** — changelog/decision log/เหตุการณ์สำคัญแบบเรียงตามเวลา บันทึกคู่ขนานไปกับทุก phase อย่างต่อเนื่อง (ไม่ใช่ลำดับตายตัวเหมือน phase อื่น)
+- **`docs/00-archived/`** — เอกสารที่ถูกแทนที่หรือยกเลิกแล้ว **ห้ามลบเอกสารออกจากโปรเจกต์ ให้ย้ายมาไว้ที่นี่แทน** เพื่อรักษาประวัติการตัดสินใจ
 
-## Conventions when editing docs
+## ธรรมเนียมในการแก้ไขเอกสาร
 
-- Keep each `index.md` as a short folder-purpose summary plus wikilinks to children/related folders — it is navigation, not content itself. Put actual content in new files within the appropriate subfolder.
-- Preserve the forward-reference pattern used throughout: each stage's `index.md` says where its output feeds next (e.g. spec → plan → task → design → testing → retrospectives), and each links back to where its inputs come from. When adding a new doc, keep this chain intact.
-- Follow the existing `NN-kebab-case` numeric-prefix naming for new top-level or second-level folders if the workflow ever grows a new stage.
+- ให้ `index.md` แต่ละไฟล์เป็นสรุปสั้นๆ ของจุดประสงค์โฟลเดอร์พร้อม wikilink ไปยังโฟลเดอร์ลูก/ที่เกี่ยวข้องเท่านั้น — มันคือหน้าทางเดิน (navigation) ไม่ใช่เนื้อหาเอง ส่วนเนื้อหาจริงให้สร้างเป็นไฟล์ใหม่ในโฟลเดอร์ย่อยที่เหมาะสม
+- รักษารูปแบบการอ้างอิงไปข้างหน้า (forward-reference) ที่ใช้อยู่ทั่วทั้งเอกสาร: `index.md` ของแต่ละขั้นตอนจะบอกว่าผลลัพธ์ของมันถูกส่งต่อไปที่ไหน (เช่น spec → plan → task → design → testing → retrospectives) และแต่ละไฟล์จะลิงก์กลับไปยังต้นทางของข้อมูลด้วย เมื่อเพิ่มเอกสารใหม่ให้รักษาห่วงโซ่นี้ไว้
+- ใช้รูปแบบการตั้งชื่อ `NN-kebab-case` แบบมีเลขนำหน้าตามที่มีอยู่เดิม หากในอนาคตมีการเพิ่ม phase ใหม่ในระดับบนสุดหรือระดับที่สอง
