@@ -42,3 +42,5 @@ journey
 
 ---
 ย้อนกลับ: [[index|01-prototypes]]
+
+> ดู prototype ที่ derive จากเอกสารนี้: [[prototypes/high-grade-mentor-chat/index|Prototype: ช่องแชทรีวิวและแนะนำวิธีการเรียนจากนักศึกษาเกรดสูง]]
