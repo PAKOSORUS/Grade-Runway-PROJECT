@@ -1,9 +1,11 @@
 ---
 name: prototype-creation
-description: สร้าง/อัปเดต UI Prototype (รายการหน้าจอ + wireframe เนื้อหา) จาก Requirement, Backlog, Feature List และ User Journey ของหัวข้อหนึ่ง (ใช้ทั้งหมดหรือระบุเจาะจงเฉพาะบางเอกสารก็ได้) โดยอ้างอิง docs/02-design/DESIGN.md เสมอ เสนอแผนให้ผู้ใช้ยืนยันก่อนเขียนไฟล์ทุกครั้ง และถามผู้ใช้ทุกครั้งเมื่อมีหัวข้อเดิมอยู่แล้วว่าจะสร้าง Folder Version ใหม่หรือแก้ไข Folder ล่าสุด ใช้เมื่อผู้ใช้ต้องการสร้างหรือปรับ Prototype ของ Grade Runway หรือพิมพ์ /prototype-creation
+description: สร้าง/อัปเดต UI Prototype (รายการหน้าจอ + wireframe เนื้อหา + ไฟล์ interactive prototype แบบ HTML ที่คลิกโต้ตอบได้จริง) จาก Requirement, Backlog, Feature List และ User Journey ของหัวข้อหนึ่ง (ใช้ทั้งหมดหรือระบุเจาะจงเฉพาะบางเอกสารก็ได้) โดยอ้างอิง docs/02-design/DESIGN.md เสมอ เสนอแผนให้ผู้ใช้ยืนยันก่อนเขียนไฟล์ทุกครั้ง และถามผู้ใช้ทุกครั้งเมื่อมีหัวข้อเดิมอยู่แล้วว่าจะสร้าง Folder Version ใหม่หรือแก้ไข Folder ล่าสุด ใช้เมื่อผู้ใช้ต้องการสร้างหรือปรับ Prototype ของ Grade Runway หรือพิมพ์ /prototype-creation
 ---
 
-Skill นี้ทำหน้าที่รับ **Requirement, Backlog, Feature List และ User Journey ของหัวข้อหนึ่ง** (ทั้งหมด หรือเฉพาะที่ผู้ใช้ระบุ) แล้วสร้าง/อัปเดต **Prototype** (รายการหน้าจอ + เนื้อหา wireframe/mockup ของแต่ละหน้าจอ) ใน `docs/02-design/01-prototypes/prototypes/` โดยอ้างอิง [DESIGN.md](../../../docs/02-design/DESIGN.md) เป็น design system กลางเสมอ อ้างอิงธรรมเนียมของ vault ตามที่ระบุใน [CLAUDE.md](../../../CLAUDE.md) ที่ root ของ repo (ภาษาไทย, wikilink, ห้ามลบเอกสาร ฯลฯ)
+Skill นี้ทำหน้าที่รับ **Requirement, Backlog, Feature List และ User Journey ของหัวข้อหนึ่ง** (ทั้งหมด หรือเฉพาะที่ผู้ใช้ระบุ) แล้วสร้าง/อัปเดต **Prototype** สองรูปแบบคู่กันเสมอ: (1) รายการหน้าจอ + เนื้อหา wireframe/mockup ของแต่ละหน้าจอเป็น Markdown (เอกสารอ้างอิง/traceability ตามธรรมเนียมของ vault) และ (2) ไฟล์ **interactive prototype แบบ HTML ไฟล์เดียวที่คลิกโต้ตอบได้จริง** (ไว้เปิดดูในเบราว์เซอร์ตรงๆ หรือ publish เป็น Artifact เพื่อดูตัวอย่าง) — เก็บทั้งหมดไว้ใน `docs/02-design/01-prototypes/prototypes/` โดยอ้างอิง [DESIGN.md](../../../docs/02-design/DESIGN.md) เป็น design system กลางเสมอ อ้างอิงธรรมเนียมของ vault ตามที่ระบุใน [CLAUDE.md](../../../CLAUDE.md) ที่ root ของ repo (ภาษาไทย, wikilink, ห้ามลบเอกสาร ฯลฯ)
+
+**หมายเหตุ:** ไฟล์ `interactive-prototype.html` ที่ skill นี้สร้างขึ้นเป็นข้อยกเว้นเดียวที่ไม่ใช่ Markdown ในโปรเจกต์นี้ — มันคือ **ต้นแบบ (prototype) สำหรับรีวิว ไม่ใช่ source code ของระบบจริง** เป็นไฟล์ HTML เดี่ยว เปิดดูได้ตรงๆ ในเบราว์เซอร์โดยไม่ต้อง build หรือ dependency ใดๆ (ยกเว้นฟอนต์จาก Google Fonts) จึงไม่ขัดกับธรรมเนียม "ไม่มีซอร์สโค้ด" ของ vault ใน CLAUDE.md
 
 **ข้อแตกต่างสำคัญจาก skill อื่นในโปรเจกต์นี้:** skill นี้ **ต้องเสนอแผนให้ผู้ใช้ยืนยันก่อนเขียนไฟล์จริงเสมอ** (ไม่ตัดสินใจเองแล้วทำจนจบแบบ spec-to-journey) และ **ต้องถามผู้ใช้ทุกครั้ง** เมื่อพบว่าหัวข้อนี้เคยมี prototype อยู่แล้วว่าจะสร้าง Folder Version ใหม่ หรือแก้ไข Folder ล่าสุด — ห้ามใช้กฎ default ตัดสินใจเองแทนสองจุดนี้
 
@@ -29,7 +31,7 @@ Glob `docs/02-design/DESIGN.md`:
   3. **ใช้ดีไซน์ทั่วไปที่เป็นกลางไปก่อน** (เช่น โทนสีสุภาพมาตรฐานของงานการศึกษา) — ข้อดี: เริ่มทำ prototype ได้ทันทีไม่ต้องรอ | ข้อเสีย: ต้องแก้ทั้ง DESIGN.md และหน้าจอที่อ้างอิง token เดิมทีหลังถ้าภายหลังผู้ใช้ต้องการโทนเฉพาะของแบรนด์จริง
   - ได้คำตอบแล้ว: ร่าง `docs/02-design/DESIGN.md` ตามหัวข้อหลักมาตรฐาน (ปรับเนื้อหาได้ตามข้อมูลที่ได้ แต่ต้องมีครบ): `1. Brand Identity & CI`, `2. Design Tokens` (Colors/Typography/Spacing/Radius/Elevation/Breakpoints), `3. UI Components & Patterns`, `4. UX Guidelines & Rules` — ถ้ามีไฟล์ตัวอย่างอื่นในโปรเจกต์เดียวกัน (git history/`00-archived`) ให้ใช้เป็น reference โครงสร้าง ถ้าไม่มีเลยให้ยึดหัวข้อมาตรฐานนี้ตรงๆ
   - เขียนไฟล์ แล้วเพิ่มลิงก์จาก `docs/02-design/index.md`, `docs/02-design/01-prototypes/index.md`, `docs/02-design/02-technical/index.md` (ตามธรรมเนียม forward-reference ของ vault)
-  - บันทึก log ตามขั้นตอนที่ 9 ทันที (แยกรายการจาก log ของการสร้าง prototype ในรอบเดียวกัน) แล้วค่อยไปขั้นตอนที่ 3 ต่อ
+  - บันทึก log ตามขั้นตอนที่ 10 ทันที (แยกรายการจาก log ของการสร้าง prototype ในรอบเดียวกัน) แล้วค่อยไปขั้นตอนที่ 3 ต่อ
 
 ## ขั้นตอนที่ 3 — สำรวจหา topic folder เดิมที่อาจเกี่ยวข้อง
 
@@ -80,6 +82,7 @@ Glob `docs/02-design/DESIGN.md`:
 - รายชื่อหน้าจอทั้งหมดพร้อมสถานะ `new`/`update`/`unchanged` และ `oneLineDescription`
 - เอกสารต้นทางที่ใช้อ้างอิงทั้งหมด (spec/backlog/features-list/user-journey — ระบุด้วยว่าเอกสารประเภทไหนถูกตัดออกเพราะผู้ใช้ระบุเจาะจงหรือเพราะไม่มีอยู่)
 - `missingInfo` จาก subagent (ถ้ามี) ในฐานะ "ข้อสันนิษฐานที่จะใช้ถ้าดำเนินการต่อ"
+- แจ้งด้วยว่านอกจากไฟล์ Markdown แล้ว จะสร้างไฟล์ `interactive-prototype.html` (คลิกโต้ตอบได้จริง) ให้ในโฟลเดอร์ version เดียวกันด้วย
 
 ใช้ **AskUserQuestion** ≥3 ทางเลือก:
 
@@ -87,18 +90,27 @@ Glob `docs/02-design/DESIGN.md`:
 2. **ขอปรับแผนก่อน** — ให้ผู้ใช้ระบุจุดที่ต้องการเปลี่ยน แล้ววนกลับไปขั้นตอนที่ 4 เรียก subagent ใหม่พร้อมข้อมูลเพิ่มเติมนั้น จนกว่าผู้ใช้จะยืนยัน
 3. **ยกเลิกการสร้าง prototype รอบนี้** — จบ flow ทันที ไม่เขียน/แก้ไฟล์ใดๆ ทั้งสิ้น (ยกเว้น DESIGN.md ที่อาจสร้างไปแล้วในขั้นตอนที่ 2 ถ้ามี)
 
-## ขั้นตอนที่ 8 — เขียน/แก้ไขไฟล์จริง
+## ขั้นตอนที่ 8 — เรียก subagent อีกครั้งเพื่อประกอบ Interactive HTML Prototype
+
+หลังผู้ใช้ยืนยันแผนในขั้นตอนที่ 7 แล้วเท่านั้น (เพื่อไม่ให้เสียงานถ้าผู้ใช้ขอปรับแผน):
+
+1. ถ้ามีหน้าจอ `status: unchanged` (กรณี existing) ให้ Read เนื้อหาไฟล์ screen เดิมของหน้าจอเหล่านั้นจาก version ล่าสุดมาเตรียมไว้ก่อน (เพื่อให้ interactive prototype ครอบคลุมหน้าจอครบทุกหน้า ไม่ใช่แค่หน้าที่เปลี่ยน)
+2. เรียก subagent `prototype-designer` อีกครั้ง (ผ่าน Agent tool, `run_in_background: false`) ระบุชัดเจนว่าเป็น **"โหมดที่ 2: ประกอบ Interactive HTML Prototype"** พร้อมส่ง: `screensPlan` ที่ยืนยันแล้ว, เนื้อหา markdown เต็มของทุกหน้าจอ (จาก `screenMarkdown` รวมกับเนื้อหาที่ Read มาในข้อ 1), `overviewMarkdown`, path `docs/02-design/DESIGN.md`, รายชื่อ persona หลักจาก user journey ที่ใช้, ชื่อหัวข้อ + topic slug
+3. รับผลลัพธ์กลับ: `suggestedFilename`, `interactiveHtml`, `notes` (ถ้ามี — เก็บไว้รายงานในขั้นตอนที่ 11 ร่วมกับ `missingInfo`)
+
+## ขั้นตอนที่ 9 — เขียน/แก้ไขไฟล์จริง
 
 โครงสร้างไฟล์ (ยึดตายตัว เพื่อให้ relative wikilink คำนวณได้ถูกต้องเสมอ):
 
 ```
 docs/02-design/01-prototypes/prototypes/
-  index.md                     ← nav: ลิงก์ไปทุก topic folder
+  index.md                       ← nav: ลิงก์ไปทุก topic folder
   {topic-slug}/
-    index.md                   ← nav: ลิงก์ไปทุก version + เอกสารต้นทางที่ใช้
+    index.md                     ← nav: ลิงก์ไปทุก version + เอกสารต้นทางที่ใช้
     v1/
-      overview.md              ← เนื้อหาภาพรวมของ version นี้
-      {screen-kebab-name}.md   ← เนื้อหา wireframe ต่อหน้าจอ
+      overview.md                ← เนื้อหาภาพรวมของ version นี้
+      {screen-kebab-name}.md     ← เนื้อหา wireframe ต่อหน้าจอ
+      interactive-prototype.html ← ต้นแบบคลิกโต้ตอบได้จริง ครอบคลุมทุกหน้าจอของ version นี้
     v2/ ...
 ```
 
@@ -106,7 +118,10 @@ docs/02-design/01-prototypes/prototypes/
 2. **ถ้าเลือก "สร้าง Folder Version ใหม่"**: สร้างโฟลเดอร์ `v{n+1}` ใหม่ทั้งหมด แล้วเขียนทุกหน้าจอให้ครบ (ให้ version ใหม่สมบูรณ์ในตัวเอง ไม่ต้องเปิดย้อนไป version เก่า): ไฟล์ที่ `status: new`/`update` ใช้เนื้อหาจาก `screenMarkdown`, ไฟล์ที่ `status: unchanged` ให้ Read เนื้อหาเดิมจาก `v{n}` มา copy มาไว้ใน `v{n+1}` ตรงๆ (โครงสร้าง path เหมือนเดิมทุกระดับ ยกเว้นชื่อโฟลเดอร์ version จึงไม่ต้องแก้ relative link ใดๆ ในเนื้อหาที่ copy มา) แล้วเขียน `overview.md` จาก `overviewMarkdown`
 3. **ถ้าเป็นหัวข้อใหม่ทั้งหมด (`new`)**: สร้าง `v1/` ตามข้อ 2 (ทุกหน้าจอเป็น `new` อยู่แล้ว ไม่มีของเก่าให้ copy) พร้อมสร้าง `{topic-slug}/index.md` ใหม่ (ลิงก์ไปเอกสารต้นทางทั้งหมดที่ใช้ + ลิงก์ไป `v1/overview.md`) และเพิ่มลิงก์ topic ใหม่นี้ใน `docs/02-design/01-prototypes/prototypes/index.md` (สร้างไฟล์นี้ใหม่ถ้ายังไม่มี พร้อมหัวข้ออธิบายสั้นๆ ว่าเก็บ prototype รายหัวข้อ)
 4. **ถ้าเป็นหัวข้อเดิม (`existing`)**: อัปเดต `{topic-slug}/index.md` ให้มีลิงก์ไปทุก version ที่มีอยู่ (เพิ่มลิงก์ version ใหม่ถ้าสร้าง v{n+1}; ถ้าแก้ v{n} ตรงๆ ไม่ต้องแก้ไฟล์นี้นอกจากตรวจว่าลิงก์เดิมยังถูกต้อง)
-5. เพิ่ม wikilink ย้อนกลับจากเอกสารต้นทาง (spec/features-list/user-journey ที่ใช้จริงในรอบนี้) ไปยัง `{topic-slug}/index.md` — เพิ่มบรรทัดท้ายไฟล์เดิมเท่านั้น (เช่น `> ดู prototype ที่ derive จากเอกสารนี้: [[../../02-design/01-prototypes/prototypes/{topic-slug}/index|Prototype: {ชื่อหัวข้อ}]]`) **ห้ามแก้เนื้อหาเดิมของเอกสารต้นทางนอกจากเพิ่มลิงก์นี้** และห้ามเพิ่มซ้ำถ้ามีลิงก์นี้อยู่แล้ว (กรณี existing ที่เคยเพิ่มไปแล้วในรอบก่อน)
+5. **เขียนไฟล์ `interactive-prototype.html`** ในโฟลเดอร์ version เดียวกันเสมอ ด้วยเนื้อหา `interactiveHtml` จากขั้นตอนที่ 8 — เขียนทับทุกครั้งไม่ว่าจะเลือกแก้ v{n} ตรงๆ หรือสร้าง v{n+1} ใหม่ (ไฟล์นี้ต้องครอบคลุมหน้าจอครบชุดปัจจุบันเสมอ จึงไม่มีสถานะ `unchanged` แบบไฟล์ screen รายหน้า) ใช้ `suggestedFilename` ถ้า subagent แนะนำชื่ออื่นที่เหมาะกว่า
+6. เพิ่มลิงก์ไปยัง `interactive-prototype.html` ไว้ท้าย `overview.md` เสมอ ด้วย **plain markdown link** (ไม่ใช่ wikilink เพราะไม่ใช่เอกสาร Markdown ของ vault) เช่น `**เปิดต้นแบบเชิงโต้ตอบ:** [interactive-prototype.html](./interactive-prototype.html) — เปิดไฟล์นี้ในเบราว์เซอร์เพื่อคลิกทดลองใช้งานจริงได้ทันที (ไม่ต้องต่อเน็ต ยกเว้นฟอนต์)`
+7. เพิ่ม wikilink ย้อนกลับจากเอกสารต้นทาง (spec/features-list/user-journey ที่ใช้จริงในรอบนี้) ไปยัง `{topic-slug}/index.md` — เพิ่มบรรทัดท้ายไฟล์เดิมเท่านั้น (เช่น `> ดู prototype ที่ derive จากเอกสารนี้: [[../../02-design/01-prototypes/prototypes/{topic-slug}/index|Prototype: {ชื่อหัวข้อ}]]`) **ห้ามแก้เนื้อหาเดิมของเอกสารต้นทางนอกจากเพิ่มลิงก์นี้** และห้ามเพิ่มซ้ำถ้ามีลิงก์นี้อยู่แล้ว (กรณี existing ที่เคยเพิ่มไปแล้วในรอบก่อน)
+8. **Publish `interactive-prototype.html` เป็น Artifact** (ใช้ Artifact tool ตรงๆ จาก main agent ไม่ใช่จาก subagent) เพื่อให้ผู้ใช้เปิดดู/คลิกทดลองได้ทันทีโดยไม่ต้องดาวน์โหลดไฟล์ — ตั้ง `title` เป็นชื่อผลิตภัณฑ์/ฟีเจอร์สั้นๆ, `description` เป็นสรุปหนึ่งประโยคภาษาไทยของหัวข้อนี้, เลือก `favicon` ที่สื่อความหมาย เก็บ URL ที่ได้ไว้รายงานในขั้นตอนที่ 10-11
 
 **Relative link ที่ต้องใช้เสมอ** (คำนวณจากโครงสร้างด้านบน นับจากไฟล์ screen/overview ที่อยู่ใน `.../prototypes/{topic-slug}/{version}/`):
 
@@ -117,8 +132,9 @@ docs/02-design/01-prototypes/prototypes/
 | ไฟล์ spec ใน `docs/01-requirements/01-spec/` | `[[../../../../../01-requirements/01-spec/{filename}\|...]]` |
 | `overview.md` ของ version เดียวกัน | `[[./overview\|...]]` |
 | `index.md` ของ topic เดียวกัน | `[[../index\|...]]` |
+| `interactive-prototype.html` ของ version เดียวกัน | plain link `[interactive-prototype.html](./interactive-prototype.html)` (ไม่ใช่ wikilink) |
 
-## ขั้นตอนที่ 9 — บันทึก log ประจำวัน
+## ขั้นตอนที่ 10 — บันทึก log ประจำวัน
 
 เปิด (หรือสร้างถ้ายังไม่มี) `docs/05-log/{YYYYMMDD}-log.md` — ถ้าเพิ่งสร้างไฟล์ใหม่ ใส่หัวเรื่อง `# Log {YYYY-MM-DD}` ก่อน แล้วต่อท้ายไฟล์ (ไม่เขียนทับของเดิม) ด้วยรายการสรุปสิ่งที่ทำในรอบนี้ เช่น:
 
@@ -127,16 +143,18 @@ docs/02-design/01-prototypes/prototypes/
 - {ถ้ามี} สร้าง [[../02-design/DESIGN|DESIGN.md]] ตามที่ผู้ใช้ระบุโทนสี/สไตล์
 - สร้าง/แก้ไข Prototype: [[../02-design/01-prototypes/prototypes/{topic-slug}/index|{ชื่อหัวข้อ}]] ({new topic v1 / v{n+1} ใหม่ / แก้ v{n}}) จาก [[../01-requirements/01-spec/{spec-filename}|{หัวข้อ spec}]]
 - หน้าจอที่สร้าง/แก้: {รายชื่อหน้าจอ}
+- Interactive prototype: `{topic-slug}/{version}/interactive-prototype.html`{ถ้า publish เป็น Artifact แล้ว ต่อด้วย} — ดูตัวอย่าง: {Artifact URL}
 ```
 
 ถ้าไม่ทราบเวลาปัจจุบันแน่นอน ใช้หัวข้อย่อยเป็นลำดับเหตุการณ์แทนเวลาก็ได้ ถ้าไฟล์ของวันนี้มี `index.md` ที่ยังไม่ได้ลิงก์ไปวันที่นี้ ให้เพิ่มลิงก์จาก `docs/05-log/index.md` ด้วยเช่นกัน
 
-## ขั้นตอนที่ 10 — สรุปให้ผู้ใช้
+## ขั้นตอนที่ 11 — สรุปให้ผู้ใช้
 
 ปิดท้ายด้วยสรุปให้ผู้ใช้ทราบ:
 
-1. สร้าง/แก้ไขไฟล์อะไรบ้าง (ลิงก์ markdown แบบ `[label](path)` ไม่ใช่ wikilink เพราะเป็นการรายงานในแชท ไม่ใช่เนื้อหาเอกสาร)
+1. สร้าง/แก้ไขไฟล์อะไรบ้าง (ลิงก์ markdown แบบ `[label](path)` ไม่ใช่ wikilink เพราะเป็นการรายงานในแชท ไม่ใช่เนื้อหาเอกสาร) — รวมถึงไฟล์ `interactive-prototype.html` และ Artifact URL ที่ publish ไว้
 2. ผลการตัดสินใจ new/existing และ version ใหม่/แก้ล่าสุด พร้อมเหตุผลสั้นๆ
 3. รายชื่อหน้าจอทั้งหมดพร้อมสถานะ
-4. **ข้อสันนิษฐานสำคัญที่ subagent/skill ใช้** — bullet list สั้นๆ (ถ้าไม่มี ให้ระบุว่าไม่มี)
-5. **จุดที่ควรพิจารณาเพิ่มเติม** — เช่น หน้าจอที่ข้อมูลยังไม่พอจนต้องใส่ `_(ต้องการข้อมูลเพิ่มเติมจากผู้ใช้)_`, หรือ token/component ใน DESIGN.md ที่ยังไม่ครอบคลุมกรณีที่เจอในรอบนี้ (ถ้าไม่มี ให้ระบุว่าไม่มี)
+4. **ข้อสันนิษฐานสำคัญที่ subagent/skill ใช้** — bullet list สั้นๆ รวม `missingInfo` (โหมดที่ 1) และ `notes` (โหมดที่ 2 — สมมติฐาน mock data/edge case ที่จำลองเป็น interaction จริงไม่ได้) (ถ้าไม่มี ให้ระบุว่าไม่มี)
+5. **จุดที่ควรพิจารณาเพิ่มเติม** — เช่น หน้าจอที่ข้อมูลยังไม่พอจนต้องใส่ `_(ต้องการข้อมูลเพิ่มเติมจากผู้ใช้)_`, token/component ใน DESIGN.md ที่ยังไม่ครอบคลุมกรณีที่เจอในรอบนี้, หรือ edge case ใน interactive prototype ที่ยังจำลองเป็น interaction จริงไม่ได้ (ถ้าไม่มี ให้ระบุว่าไม่มี)
+6. เตือนผู้ใช้เสมอว่า `interactive-prototype.html` เป็น **mock ฝั่ง client เท่านั้น** ข้อมูลรีเซ็ตเมื่อรีเฟรชหน้า ไม่ได้เชื่อมกับเอกสาร/ข้อมูลจริงใน vault
