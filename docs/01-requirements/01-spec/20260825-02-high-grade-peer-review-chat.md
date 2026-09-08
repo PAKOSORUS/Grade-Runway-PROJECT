@@ -49,3 +49,5 @@ _(ต้องการข้อมูลเพิ่มเติมจากผ
 ย้อนกลับ: [[index|01-spec]]
 
 > ดูฟีเจอร์และ journey ที่ derive จากเอกสารนี้: [[../../02-design/01-prototypes/20260827-03-features-list-high-grade-peer-review-chat|Features List]], [[../../02-design/01-prototypes/20260827-04-user-journey-mentor-high-grade-peer-review-chat|User Journey: นักศึกษาเกรดสูง/ผู้แนะนำ]], [[../../02-design/01-prototypes/20260827-05-user-journey-mentee-high-grade-peer-review-chat|User Journey: นักศึกษาทั่วไป]], [[../../02-design/01-prototypes/20260827-06-user-journey-admin-high-grade-peer-review-chat|User Journey: ผู้ดูแลระบบ]]
+
+> ดู prototype ที่ derive จากเอกสารนี้: [[../../02-design/01-prototypes/prototypes/high-grade-mentor-chat/index|Prototype: ช่องแชทรีวิวและแนะนำวิธีการเรียนจากนักศึกษาเกรดสูง]]

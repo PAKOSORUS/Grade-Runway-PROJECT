@@ -38,3 +38,5 @@
 
 ---
 ย้อนกลับ: [[index|01-prototypes]] | ต้นทาง: [[../../01-requirements/01-spec/20260825-02-high-grade-peer-review-chat|ช่องแชทรีวิวและแนะนำวิธีการเรียนจากนักศึกษาเกรดสูง]]
+
+> ดู prototype ที่ derive จากเอกสารนี้: [[prototypes/high-grade-mentor-chat/index|Prototype: ช่องแชทรีวิวและแนะนำวิธีการเรียนจากนักศึกษาเกรดสูง]]

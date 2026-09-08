@@ -1,0 +1,628 @@
+<title>MentorChat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --color-primary-900:#3D0A0D;
+    --color-primary-700:#6E1116;
+    --color-primary-600:#8B1A1F;
+    --color-primary-500:#A6222A;
+    --color-primary-100:#F3D9DA;
+    --color-primary-50:#FBEFEF;
+    --color-gold-700:#8A6A16;
+    --color-gold-500:#C9A227;
+    --color-gold-300:#E4C877;
+    --color-gold-100:#F8ECC7;
+    --color-neutral-900:#1F1B1B;
+    --color-neutral-700:#4A4444;
+    --color-neutral-500:#8A8282;
+    --color-neutral-300:#D9D3D3;
+    --color-neutral-100:#F1EDED;
+    --color-neutral-50:#FAF8F8;
+    --color-neutral-0:#FFFFFF;
+    --color-success:#2E7D46;
+    --color-warning:#C77B12;
+    --color-danger:#B3261E;
+    --color-info:#2F6FA6;
+    --font-base:"Noto Sans Thai","Sarabun",-apple-system,"Segoe UI",Roboto,sans-serif;
+    --radius-sm:4px; --radius-md:8px; --radius-lg:16px; --radius-full:9999px;
+    --shadow-sm:0 1px 2px rgba(31,27,27,.08);
+    --shadow-md:0 4px 12px rgba(31,27,27,.12);
+    --shadow-lg:0 16px 40px rgba(31,27,27,.18);
+  }
+
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--color-neutral-50);color:var(--color-neutral-900);font-family:var(--font-base);}
+  button, input, select, textarea{font-family:inherit;}
+
+  .page{min-height:100vh;padding:48px 20px 64px;display:flex;flex-direction:column;align-items:center;gap:26px;}
+  .page-head{max-width:600px;text-align:center;}
+  .eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--color-gold-700);margin-bottom:8px;}
+  h1{font-size:34px;font-weight:700;letter-spacing:-.01em;margin:0 0 10px;color:var(--color-primary-700);text-wrap:balance;}
+  .lede{font-size:15px;line-height:1.65;color:var(--color-neutral-700);margin:0;}
+
+  .role-switch-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .role-tabs{display:inline-flex;background:var(--color-neutral-100);padding:4px;border-radius:var(--radius-full);gap:4px;}
+  .role-tab{padding:10px 20px;border-radius:var(--radius-full);border:none;background:transparent;font-size:14px;font-weight:600;color:var(--color-neutral-700);cursor:pointer;transition:background .15s,color .15s;}
+  .role-tab:hover{color:var(--color-primary-600);}
+  .role-tab.active{background:var(--color-primary-600);color:#fff;box-shadow:var(--shadow-sm);}
+  .persona-caption{margin:0;font-size:13px;color:var(--color-neutral-500);text-align:center;max-width:520px;}
+
+  .frame-wrap{width:100%;display:flex;justify-content:center;}
+  .frame{position:relative;background:var(--color-neutral-0);box-shadow:var(--shadow-lg);overflow:hidden;display:flex;flex-direction:column;}
+  .frame.mobile{width:390px;max-width:100%;height:min(760px,85vh);border-radius:34px;border:9px solid var(--color-neutral-900);}
+  .frame.desktop{width:940px;max-width:100%;height:min(680px,85vh);border-radius:14px;border:1px solid var(--color-neutral-300);}
+
+  .chrome{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--color-neutral-100);border-bottom:1px solid var(--color-neutral-300);flex-shrink:0;}
+  .chrome .dot{width:9px;height:9px;border-radius:50%;background:var(--color-neutral-300);}
+  .chrome .url{margin-left:8px;font-size:12px;color:var(--color-neutral-500);background:var(--color-neutral-0);padding:4px 12px;border-radius:var(--radius-full);border:1px solid var(--color-neutral-300);font-variant-numeric:tabular-nums;}
+
+  .screen{flex:1;min-height:0;display:flex;flex-direction:column;}
+
+  .topbar{background:var(--color-primary-700);color:#fff;padding:16px;display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;flex-shrink:0;}
+  .topbar .back{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:4px 10px;border-radius:8px;line-height:1;}
+  .topbar .back:hover{background:rgba(255,255,255,.16);}
+
+  .admin-topbar{background:var(--color-primary-700);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;font-weight:600;font-size:15px;flex-shrink:0;}
+  .admin-topbar .role-label{font-size:12px;font-weight:400;opacity:.85;}
+  .admin-tabs{display:flex;gap:4px;padding:10px 20px 0;background:var(--color-neutral-0);border-bottom:1px solid var(--color-neutral-300);flex-shrink:0;}
+  .admin-tab{padding:10px 14px;border:none;background:none;font-size:14px;font-weight:600;color:var(--color-neutral-700);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+  .admin-tab:hover{color:var(--color-primary-600);}
+  .admin-tab.active{color:var(--color-primary-600);border-bottom-color:var(--color-gold-500);}
+  .admin-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;background:var(--color-neutral-50);}
+
+  .scroll-area{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--color-neutral-50);}
+
+  .bottom-tabs{display:flex;border-top:1px solid var(--color-neutral-300);background:var(--color-neutral-0);flex-shrink:0;}
+  .bottom-tab{flex:1;padding:9px 4px 11px;display:flex;flex-direction:column;align-items:center;gap:2px;border:none;background:none;font-size:11px;color:var(--color-neutral-500);cursor:pointer;min-height:44px;}
+  .bottom-tab .icon{font-size:18px;}
+  .bottom-tab.active{color:var(--color-primary-600);font-weight:700;}
+
+  .card{background:var(--color-neutral-0);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);padding:14px 16px;display:flex;flex-direction:column;gap:6px;border:1px solid transparent;cursor:default;}
+  button.card{appearance:none;width:100%;text-align:left;color:inherit;}
+  .room-card{cursor:pointer;transition:border-color .15s,transform .1s;}
+  .room-card:hover{border-color:var(--color-primary-100);}
+  .room-card:active{transform:scale(.99);}
+  .card.risk-success{border-left:4px solid var(--color-success);}
+  .card.risk-warning{border-left:4px solid var(--color-warning);}
+  .card.risk-danger{border-left:4px solid var(--color-danger);}
+  .room-code{font-size:12px;font-weight:700;color:var(--color-primary-600);letter-spacing:.02em;}
+  .room-name{font-size:16px;font-weight:600;color:var(--color-neutral-900);}
+  .room-preview{font-size:13px;color:var(--color-neutral-500);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .card p{margin:0;font-size:14px;line-height:1.55;color:var(--color-neutral-700);}
+
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 11px;border-radius:var(--radius-full);font-size:12px;font-weight:600;width:fit-content;white-space:nowrap;}
+  .badge-mentor{background:var(--color-gold-100);color:var(--color-gold-700);}
+  .badge-none{background:var(--color-neutral-100);color:var(--color-neutral-700);}
+  .badge-warning{background:color-mix(in srgb, var(--color-warning) 14%, white);color:var(--color-warning);}
+  .badge-success{background:color-mix(in srgb, var(--color-success) 14%, white);color:var(--color-success);}
+  .badge-danger{background:color-mix(in srgb, var(--color-danger) 14%, white);color:var(--color-danger);}
+
+  .btn{font-weight:600;font-size:14px;padding:10px 18px;border-radius:var(--radius-md);border:1.5px solid transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;transition:background .15s,border-color .15s,filter .15s;}
+  .btn-primary{background:var(--color-primary-600);color:#fff;}
+  .btn-primary:hover{background:var(--color-primary-500);}
+  .btn-secondary{background:transparent;border-color:var(--color-primary-600);color:var(--color-primary-600);}
+  .btn-secondary:hover{background:var(--color-primary-50);}
+  .btn-danger{background:var(--color-danger);color:#fff;}
+  .btn-danger:hover{filter:brightness(1.08);}
+  .btn-ghost{background:transparent;color:var(--color-neutral-700);border-color:transparent;padding:8px 12px;min-height:auto;}
+  .btn-ghost:hover{background:var(--color-neutral-100);}
+  .btn:focus-visible, .bottom-tab:focus-visible, .role-tab:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{outline:2px solid var(--color-gold-500);outline-offset:2px;}
+
+  .bubble-row{display:flex;}
+  .bubble-row.mine{justify-content:flex-end;}
+  .bubble-row.other{justify-content:flex-start;}
+  .bubble-col{display:flex;flex-direction:column;max-width:80%;gap:4px;}
+  .bubble-col.mine{align-items:flex-end;}
+  .bubble-name{font-size:12px;font-weight:600;color:var(--color-neutral-700);display:flex;align-items:center;gap:4px;}
+  .bubble{padding:10px 14px;border-radius:var(--radius-lg);font-size:14px;line-height:1.55;word-break:break-word;}
+  .bubble.mine{background:var(--color-primary-100);border-bottom-right-radius:var(--radius-sm);}
+  .bubble.other{background:var(--color-neutral-100);border-bottom-left-radius:var(--radius-sm);}
+  .bubble-meta{font-size:11px;color:var(--color-neutral-500);}
+  .bubble-reason{font-size:12px;color:var(--color-danger);max-width:220px;}
+
+  .empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:44px 24px;color:var(--color-neutral-700);margin:auto;}
+  .empty .icon{font-size:30px;}
+  .empty p{margin:0;font-size:14px;line-height:1.6;max-width:280px;}
+
+  .composer{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--color-neutral-300);background:var(--color-neutral-0);flex-shrink:0;}
+  .composer textarea{flex:1;resize:none;border:1px solid var(--color-neutral-300);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;min-height:44px;max-height:88px;}
+  .composer textarea:focus{outline:none;border-color:var(--color-primary-600);border-width:2px;}
+
+  .req-card{flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:14px;}
+  .req-info{display:flex;flex-direction:column;gap:5px;flex:1;min-width:220px;}
+  .req-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .reject-panel{flex-basis:100%;display:flex;flex-direction:column;gap:8px;background:var(--color-neutral-50);padding:12px;border-radius:var(--radius-sm);border:1px dashed var(--color-neutral-300);}
+  .reject-panel label{font-size:13px;font-weight:600;}
+  .reject-panel textarea{width:100%;border:1px solid var(--color-neutral-300);border-radius:var(--radius-sm);padding:8px 10px;font-size:14px;}
+  .reject-panel textarea:focus{outline:none;border-color:var(--color-primary-600);border-width:2px;}
+  .reject-panel .actions{display:flex;gap:8px;}
+
+  .table-wrap{overflow-x:auto;border-radius:var(--radius-md);box-shadow:var(--shadow-sm);}
+  table.criteria{width:100%;border-collapse:collapse;background:var(--color-neutral-0);}
+  table.criteria th, table.criteria td{text-align:left;padding:11px 14px;font-size:14px;border-bottom:1px solid var(--color-neutral-100);white-space:nowrap;}
+  table.criteria th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--color-neutral-500);font-weight:600;background:var(--color-neutral-50);}
+  table.criteria td.num{font-variant-numeric:tabular-nums;}
+
+  .form-field{display:flex;flex-direction:column;gap:6px;}
+  .form-field label{font-size:13px;font-weight:600;color:var(--color-neutral-700);}
+  .form-field input[type="text"], .form-field select{border:1px solid var(--color-neutral-300);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;background:var(--color-neutral-0);}
+  .form-field input[type="text"]:focus, .form-field select:focus{outline:none;border-color:var(--color-primary-600);border-width:2px;}
+  .radio-row{display:flex;gap:18px;}
+  .radio-row label{font-weight:400 !important;display:flex;align-items:center;gap:6px;font-size:14px;color:var(--color-neutral-900);}
+
+  .toast{position:absolute;top:14px;left:50%;transform:translateX(-50%) translateY(-6px);background:var(--color-neutral-900);color:#fff;padding:10px 18px;border-radius:var(--radius-md);font-size:13px;box-shadow:var(--shadow-md);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:88%;text-align:center;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .footnote{max-width:520px;text-align:center;font-size:12px;color:var(--color-neutral-500);margin:0;}
+  .reset-btn{font-size:13px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+
+<div class="page">
+  <header class="page-head">
+    <div class="eyebrow">Grade Runway · Interactive Prototype</div>
+    <h1>MentorChat</h1>
+    <p class="lede">ทดลองคลิกโต้ตอบตามมุมมองของนักศึกษาทั่วไป นักศึกษาเกรดสูงที่เป็นผู้แนะนำ และผู้ดูแลระบบ ข้อมูลทั้งหมดเป็นข้อมูลจำลองที่เก็บอยู่ในเบราว์เซอร์นี้เท่านั้น</p>
+  </header>
+
+  <div class="role-switch-wrap">
+    <div class="role-tabs" id="role-tabs">
+      <button class="role-tab active" data-role="mentee">นักศึกษาทั่วไป</button>
+      <button class="role-tab" data-role="mentor">นักศึกษาเกรดสูง (ผู้แนะนำ)</button>
+      <button class="role-tab" data-role="admin">ผู้ดูแลระบบ</button>
+    </div>
+    <p class="persona-caption" id="persona-caption"></p>
+  </div>
+
+  <div class="frame-wrap" id="stage"></div>
+
+  <p class="footnote">อ้างอิง design tokens จาก DESIGN.md (โทนแดงเลือดหมู–ทอง อัตลักษณ์มหาวิทยาลัยแม่ฟ้าหลวง) และ wireframe 6 หน้าจอใน prototype v1 ของฟีเจอร์ช่องแชทรีวิวและแนะนำวิธีการเรียนจากนักศึกษาเกรดสูง</p>
+  <button class="btn btn-ghost reset-btn" id="reset-btn">↺ รีเซ็ตข้อมูลตัวอย่างทั้งหมด</button>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var subjects = {
+    cs101:   { id:"cs101",   code:"CS101",   name:"โครงสร้างข้อมูลและขั้นตอนวิธี",         mentors:["ธนกร ศรีสุข"],      criteria:{type:"grade", value:"A"} },
+    math204: { id:"math204", code:"MATH204", name:"แคลคูลัสสำหรับวิศวกร",                   mentors:[],                     criteria:{type:"gpa",   value:"3.50"} },
+    eng150:  { id:"eng150",  code:"ENG150",  name:"การเขียนเชิงวิชาการภาษาอังกฤษ",         mentors:["พิมพ์ชนก อินทร์แก้ว"], criteria:{type:"grade", value:"B+"} }
+  };
+  var subjectOrder = ["cs101","math204","eng150"];
+
+  var PERSONA = {
+    mentee: { id:"u-mentee", name:"คุณ" },
+    mentor: { id:"u-mentor", name:"ธนกร ศรีสุข" }
+  };
+
+  var mentorRequests = [
+    { id:"req-cs101-you",     studentId:"u-mentor",       studentName:"ธนกร ศรีสุข",   subjectId:"cs101",   status:"approved", metric:"เกรดวิชา A (เกณฑ์ปัจจุบัน A)" },
+    { id:"req-math204-you",   studentId:"u-mentor",       studentName:"ธนกร ศรีสุข",   subjectId:"math204", status:"pending",  metric:"GPA สะสม 3.78 (เกณฑ์ปัจจุบัน 3.50)" },
+    { id:"req-eng150-you",    studentId:"u-mentor",       studentName:"ธนกร ศรีสุข",   subjectId:"eng150",  status:"rejected", metric:"เกรดวิชา B (เกณฑ์ปัจจุบัน B+)", reason:"เกรดวิชานี้ของคุณยังไม่ถึงเกณฑ์ B+ ที่ประกาศไว้ในปัจจุบัน" },
+    { id:"req-math204-paweena", studentId:"u-npc-paweena", studentName:"ปวีณา รุ่งเรือง", subjectId:"math204", status:"pending", metric:"เกรดวิชา A (เกณฑ์ปัจจุบัน A)" }
+  ];
+
+  var nextMsgId = 1000;
+  var messages = [
+    { id:1, subjectId:"cs101",  senderId:"u-npc-mina",      senderName:"มีนา จันทร์เพ็ญ",      role:"mentee", text:"พี่คะ เรียนเรื่อง Linked List แล้วงงมากค่ะ มีทริคจำง่ายๆ ไหม", status:"published", time:"09:14" },
+    { id:2, subjectId:"cs101",  senderId:"u-mentor",        senderName:"ธนกร ศรีสุข",           role:"mentor", text:"ลองนึกภาพเป็นขบวนรถไฟที่แต่ละตู้ชี้ไปตู้ถัดไปดูนะ จะเห็นภาพง่ายขึ้นเยอะเลย เดี๋ยวพี่แปะโค้ดตัวอย่างให้อีกที", status:"published", time:"09:20" },
+    { id:3, subjectId:"cs101",  senderId:"u-npc-preeya",    senderName:"ปรียา วงศ์สุข",         role:"mentee", text:"ขอบคุณพี่มากค่ะ เข้าใจขึ้นเยอะเลย", status:"published", time:"09:25" },
+    { id:4, subjectId:"eng150", senderId:"u-npc-methawee",  senderName:"เมธาวี ทองดี",          role:"mentee", text:"อยากรู้ว่าพี่เตรียมตัวสอบ writing ยังไงคะ", status:"pending", time:"08:02" },
+    { id:5, subjectId:"eng150", senderId:"u-npc-pimchanok", senderName:"พิมพ์ชนก อินทร์แก้ว",   role:"mentor", text:"สำหรับ Writing Section แนะนำให้ฝึกเขียน outline ก่อนลงมือเขียนจริงทุกครั้งค่ะ", status:"published", time:"07:40" }
+  ];
+
+  var state = {
+    role: "mentee",
+    mentee: { screen:"rooms", subjectId:null },
+    mentor: { screen:"rooms", subjectId:null },
+    admin:  { screen:"approval" }
+  };
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function nowLabel(){
+    var d = new Date();
+    var h = d.getHours().toString().padStart(2,"0");
+    var m = d.getMinutes().toString().padStart(2,"0");
+    return h+":"+m;
+  }
+
+  function isApprovedMentor(subjectId, studentId){
+    return mentorRequests.some(function(r){ return r.subjectId===subjectId && r.studentId===studentId && r.status==="approved"; });
+  }
+
+  function subjectMentorBadge(subject){
+    return subject.mentors.length>0
+      ? '<span class="badge badge-mentor">👑 มีผู้แนะนำ '+subject.mentors.length+' คน</span>'
+      : '<span class="badge badge-none">ยังไม่มีผู้แนะนำ</span>';
+  }
+
+  function lastMessagePreview(subjectId){
+    var list = messages.filter(function(m){ return m.subjectId===subjectId && m.status==="published"; });
+    if(!list.length) return "ยังไม่มีข้อความ";
+    var last = list[list.length-1];
+    return last.senderName+": "+last.text;
+  }
+
+  function bottomTabs(role, activeKey){
+    var tabs = role==="mentor"
+      ? [{key:"rooms",label:"ห้องแชท",icon:"💬"},{key:"status",label:"สถานะผู้แนะนำ",icon:"🎓"}]
+      : [{key:"rooms",label:"ห้องแชท",icon:"💬"},{key:"notify",label:"แจ้งเตือน",icon:"🔔"}];
+    return '<div class="bottom-tabs">'+tabs.map(function(t){
+      return '<button class="bottom-tab '+(activeKey===t.key?'active':'')+'" data-action="tab" data-role="'+role+'" data-tab="'+t.key+'"><span class="icon">'+t.icon+'</span>'+t.label+'</button>';
+    }).join("")+'</div>';
+  }
+
+  function renderRoomList(role){
+    var items = subjectOrder.map(function(id){
+      var s = subjects[id];
+      return '<button class="card room-card" data-action="open-room" data-role="'+role+'" data-subject="'+id+'">'
+        + '<div class="room-code">'+s.code+'</div>'
+        + '<div class="room-name">'+escapeHtml(s.name)+'</div>'
+        + subjectMentorBadge(s)
+        + '<div class="room-preview">'+escapeHtml(lastMessagePreview(id))+'</div>'
+        + '</button>';
+    }).join("");
+    return '<div class="topbar"><span>ห้องแชทรายวิชา</span></div>'
+      + '<div class="scroll-area">'+items+'</div>'
+      + bottomTabs(role,"rooms");
+  }
+
+  function displaySenderName(m, persona){
+    return m.senderId===persona.id ? m.senderName+" (คุณ)" : m.senderName;
+  }
+
+  function renderBubble(m, persona){
+    var mine = m.senderId===persona.id;
+    var mentorTag = (m.role==="mentor" && isApprovedMentor(m.subjectId, m.senderId)) ? ' <span title="ผู้แนะนำที่ได้รับอนุมัติ">👑</span>' : '';
+    var statusLine = "";
+    if(mine && m.status==="pending"){
+      statusLine = '<span class="badge badge-warning">รอการตรวจสอบ — ยังไม่เผยแพร่</span>';
+    } else if(mine && m.status==="rejected"){
+      statusLine = '<span class="badge badge-danger">ถูกปฏิเสธ</span><div class="bubble-reason">'+escapeHtml(m.reason||"ไม่ระบุเหตุผล")+'</div>';
+    }
+    return '<div class="bubble-row '+(mine?'mine':'other')+'">'
+      + '<div class="bubble-col '+(mine?'mine':'')+'">'
+      + '<div class="bubble-name">'+escapeHtml(displaySenderName(m,persona))+mentorTag+'</div>'
+      + '<div class="bubble '+(mine?'mine':'other')+'">'+escapeHtml(m.text)+'</div>'
+      + '<div class="bubble-meta">'+m.time+'</div>'
+      + statusLine
+      + '</div></div>';
+  }
+
+  function renderEmptyChat(s){
+    if(s.mentors.length===0){
+      return '<div class="empty"><div class="icon">💬</div><p>ยังไม่มีผู้แนะนำในวิชานี้ คุณสามารถตั้งคำถามไว้ก่อนได้ เมื่อมีผู้แนะนำจะเห็นคำถามของคุณ</p></div>';
+    }
+    return '<div class="empty"><div class="icon">💬</div><p>ยังไม่มีข้อความในห้องนี้ ลองเริ่มต้นทักทายเพื่อนร่วมวิชาได้เลย</p></div>';
+  }
+
+  function renderChatRoom(role, subjectId){
+    var s = subjects[subjectId];
+    var persona = PERSONA[role];
+    var list = messages.filter(function(m){ return m.subjectId===subjectId && (m.status==="published" || m.senderId===persona.id); });
+    list.sort(function(a,b){ return a.id-b.id; });
+    var body = list.length ? list.map(function(m){ return renderBubble(m,persona); }).join("") : renderEmptyChat(s);
+    return '<div class="topbar">'
+      + '<button class="back" data-action="back-to-rooms" data-role="'+role+'" aria-label="ย้อนกลับ">←</button>'
+      + '<div><div>'+s.code+'</div><div style="font-size:12px;font-weight:400;opacity:.85">'+escapeHtml(s.name)+'</div></div>'
+      + '</div>'
+      + '<div class="scroll-area" id="chat-scroll">'+body+'</div>'
+      + '<form class="composer" data-action="send" data-subject="'+subjectId+'" data-role="'+role+'">'
+      + '<textarea placeholder="พิมพ์ข้อความ..." required></textarea>'
+      + '<button type="submit" class="btn btn-primary">ส่ง</button>'
+      + '</form>'
+      + bottomTabs(role,"rooms");
+  }
+
+  function renderMentorStatus(){
+    var persona = PERSONA.mentor;
+    var items = mentorRequests.filter(function(r){ return r.studentId===persona.id; });
+    var cards = items.map(function(r){
+      var s = subjects[r.subjectId];
+      if(r.status==="approved"){
+        return '<div class="card risk-success">'
+          + '<div class="room-code">'+s.code+' · '+escapeHtml(s.name)+'</div>'
+          + '<span class="badge badge-mentor">👑 ได้รับสิทธิ์แล้ว</span>'
+          + '<p>ยินดีด้วย! คุณเป็นผู้แนะนำของวิชานี้แล้ว เพื่อนๆ ในห้องแชทจะเห็นคำแนะนำของคุณพร้อมป้ายผู้แนะนำ</p>'
+          + '<button class="btn btn-primary" data-action="goto-chat" data-role="mentor" data-subject="'+s.id+'">ไปที่ห้องแชท</button>'
+          + '</div>';
+      }
+      if(r.status==="pending"){
+        return '<div class="card risk-warning">'
+          + '<div class="room-code">'+s.code+' · '+escapeHtml(s.name)+'</div>'
+          + '<span class="badge badge-warning">รอการอนุมัติ</span>'
+          + '<p>ระบบเสนอชื่อคุณเป็นผู้แนะนำวิชานี้แล้ว ('+escapeHtml(r.metric)+') กำลังรอแอดมินตรวจสอบความเหมาะสม</p>'
+          + '</div>';
+      }
+      return '<div class="card risk-danger">'
+        + '<div class="room-code">'+s.code+' · '+escapeHtml(s.name)+'</div>'
+        + '<span class="badge badge-danger">ถูกปฏิเสธ</span>'
+        + '<p>'+escapeHtml(r.reason||"ไม่ระบุเหตุผล")+'</p>'
+        + '</div>';
+    }).join("");
+    return '<div class="topbar"><span>สิทธิ์ผู้แนะนำของฉัน</span></div>'
+      + '<div class="scroll-area">'+cards+'</div>'
+      + bottomTabs("mentor","status");
+  }
+
+  function emptyAdmin(text){
+    return '<div class="empty"><div class="icon">✅</div><p>'+escapeHtml(text)+'</p></div>';
+  }
+
+  function adminTabBtn(key,label,active){
+    return '<button class="admin-tab '+(active===key?'active':'')+'" data-action="admin-tab" data-tab="'+key+'">'+label+'</button>';
+  }
+
+  function renderApprovalQueue(){
+    var pending = mentorRequests.filter(function(r){ return r.status==="pending"; });
+    if(!pending.length) return emptyAdmin("ไม่มีรายชื่อรอตรวจสอบในขณะนี้ ระบบจะแจ้งเมื่อมีนักศึกษาเข้าเกณฑ์ใหม่");
+    return pending.map(function(r){
+      var s = subjects[r.subjectId];
+      return '<div class="card req-card">'
+        + '<div class="req-info">'
+        + '<div class="room-code" style="font-size:14px;color:var(--color-neutral-900);">'+escapeHtml(r.studentName)+' <span style="color:var(--color-neutral-500);font-weight:400;">· '+escapeHtml(r.studentId.replace("u-npc-","").replace("u-mentor","6531509876"))+'</span></div>'
+        + '<div style="font-size:13px;">วิชา: '+s.code+' — '+escapeHtml(s.name)+'</div>'
+        + '<div style="font-size:13px;color:var(--color-neutral-700);">'+escapeHtml(r.metric)+'</div>'
+        + '<span class="badge badge-warning">รอการอนุมัติ</span>'
+        + '</div>'
+        + '<div class="req-actions">'
+        + '<button class="btn btn-primary" data-action="approve-req" data-req="'+r.id+'">อนุมัติ</button>'
+        + '<button class="btn btn-danger" data-action="show-reject-req" data-req="'+r.id+'">ปฏิเสธ</button>'
+        + '</div>'
+        + '<div class="reject-panel" id="reject-panel-'+r.id+'" hidden>'
+        + '<label>เหตุผลที่ปฏิเสธ</label>'
+        + '<textarea id="reject-reason-'+r.id+'" rows="2" placeholder="ระบุเหตุผลสั้นๆ ให้นักศึกษาทราบ"></textarea>'
+        + '<div class="actions"><button class="btn btn-danger" data-action="confirm-reject-req" data-req="'+r.id+'">ยืนยันปฏิเสธ</button>'
+        + '<button class="btn btn-ghost" data-action="cancel-reject-req" data-req="'+r.id+'">ยกเลิก</button></div>'
+        + '</div></div>';
+    }).join("");
+  }
+
+  function renderModerationQueue(){
+    var pending = messages.filter(function(m){ return m.status==="pending"; });
+    if(!pending.length) return emptyAdmin("ไม่มีข้อความรอตรวจสอบในขณะนี้ ดีมากครับ/ค่ะ");
+    return pending.map(function(m){
+      var s = subjects[m.subjectId];
+      var mentorTag = m.role==="mentor" ? ' <span class="badge badge-mentor">👑 ผู้แนะนำ</span>' : '';
+      return '<div class="card req-card">'
+        + '<div class="req-info">'
+        + '<div class="room-code" style="font-size:14px;color:var(--color-neutral-900);">'+escapeHtml(m.senderName)+mentorTag+'</div>'
+        + '<div style="font-size:12px;color:var(--color-neutral-500);">'+s.code+' · '+m.time+'</div>'
+        + '<p>'+escapeHtml(m.text)+'</p>'
+        + '<span class="badge badge-warning">รอตรวจ</span>'
+        + '</div>'
+        + '<div class="req-actions">'
+        + '<button class="btn btn-primary" data-action="approve-msg" data-msg="'+m.id+'">อนุมัติ</button>'
+        + '<button class="btn btn-danger" data-action="show-reject-msg" data-msg="'+m.id+'">ปฏิเสธ</button>'
+        + '</div>'
+        + '<div class="reject-panel" id="reject-msg-panel-'+m.id+'" hidden>'
+        + '<label>เหตุผลที่ปฏิเสธ</label>'
+        + '<textarea id="reject-msg-reason-'+m.id+'" rows="2" placeholder="ระบุเหตุผลสั้นๆ ให้ผู้ส่งทราบ"></textarea>'
+        + '<div class="actions"><button class="btn btn-danger" data-action="confirm-reject-msg" data-msg="'+m.id+'">ยืนยันปฏิเสธ</button>'
+        + '<button class="btn btn-ghost" data-action="cancel-reject-msg" data-msg="'+m.id+'">ยกเลิก</button></div>'
+        + '</div></div>';
+    }).join("");
+  }
+
+  function renderCriteriaSettings(){
+    var options = subjectOrder.map(function(id){ return '<option value="'+id+'">'+subjects[id].code+' — '+escapeHtml(subjects[id].name)+'</option>'; }).join("");
+    var rows = subjectOrder.map(function(id){
+      var s = subjects[id];
+      return '<tr><td>'+s.code+' — '+escapeHtml(s.name)+'</td>'
+        + '<td>'+(s.criteria.type==="grade"?"เกรดรายวิชา":"GPA สะสม")+'</td>'
+        + '<td class="num">'+escapeHtml(s.criteria.value)+'</td>'
+        + '<td><button class="btn btn-ghost" data-action="edit-criteria" data-subject="'+id+'">แก้ไข</button></td></tr>';
+    }).join("");
+    return '<form class="card" id="criteria-form" data-action="save-criteria" style="gap:14px;">'
+      + '<div class="room-code" style="font-size:15px;color:var(--color-neutral-900);">ตั้งค่าเกณฑ์ผู้แนะนำ</div>'
+      + '<div class="form-field"><label>เลือกวิชา</label><select id="criteria-subject">'+options+'</select></div>'
+      + '<div class="form-field"><label>ประเภทเกณฑ์</label><div class="radio-row">'
+      + '<label><input type="radio" name="criteria-type" value="grade" checked> เกรดรายวิชา</label>'
+      + '<label><input type="radio" name="criteria-type" value="gpa"> GPA สะสม</label>'
+      + '</div></div>'
+      + '<div class="form-field"><label>ค่าเกณฑ์ขั้นต่ำ</label><input type="text" id="criteria-value" placeholder="เช่น A หรือ 3.50" required></div>'
+      + '<div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">บันทึก</button>'
+      + '<button type="button" class="btn btn-secondary" data-action="reset-criteria-form">ยกเลิก</button></div>'
+      + '</form>'
+      + '<div class="table-wrap"><table class="criteria"><thead><tr><th>วิชา</th><th>ประเภทเกณฑ์</th><th>ค่าปัจจุบัน</th><th></th></tr></thead>'
+      + '<tbody>'+rows+'</tbody></table></div>';
+  }
+
+  function renderAdminApp(){
+    var screen = state.admin.screen;
+    var body = screen==="approval" ? renderApprovalQueue() : screen==="moderation" ? renderModerationQueue() : renderCriteriaSettings();
+    return '<div class="admin-topbar"><span>Grade Runway · Admin Console</span><span class="role-label">ผู้ดูแลระบบ</span></div>'
+      + '<div class="admin-tabs">'
+      + adminTabBtn("approval","คิวอนุมัติผู้แนะนำ",screen)
+      + adminTabBtn("moderation","ตรวจสอบข้อความ",screen)
+      + adminTabBtn("criteria","ตั้งค่าเกณฑ์",screen)
+      + '</div>'
+      + '<div class="admin-body">'+body+'</div>';
+  }
+
+  var CAPTIONS = {
+    mentee: "มุมมองนักศึกษาทั่วไป — ลงทะเบียน 3 วิชา ยังไม่มีสิทธิ์ผู้แนะนำในวิชาใด",
+    mentor: "มุมมองนักศึกษาเกรดสูง (ธนกร ศรีสุข) — ได้รับสิทธิ์ผู้แนะนำแล้วใน CS101, รออนุมัติใน MATH204, ถูกปฏิเสธใน ENG150",
+    admin: "มุมมองผู้ดูแลระบบ — ตรวจสอบคำขอผู้แนะนำและข้อความก่อนเผยแพร่ พร้อมตั้งค่าเกณฑ์รายวิชา"
+  };
+
+  function render(){
+    var stage = document.getElementById("stage");
+    var html;
+    if(state.role==="admin"){
+      html = '<div class="frame desktop">'
+        + '<div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">admin.graderunway.app/mentor-chat</span></div>'
+        + '<div class="screen">'+renderAdminApp()+'</div>'
+        + '<div class="toast" id="toast"></div></div>';
+    } else {
+      var r = state.role;
+      var sub = state[r];
+      var inner;
+      if(sub.screen==="chat") inner = renderChatRoom(r, sub.subjectId);
+      else if(sub.screen==="status") inner = renderMentorStatus();
+      else inner = renderRoomList(r);
+      html = '<div class="frame mobile"><div class="screen">'+inner+'</div><div class="toast" id="toast"></div></div>';
+    }
+    stage.innerHTML = html;
+    var cap = document.getElementById("persona-caption");
+    if(cap) cap.textContent = CAPTIONS[state.role];
+    var cs = document.getElementById("chat-scroll");
+    if(cs) cs.scrollTop = cs.scrollHeight;
+  }
+
+  function showToast(msg){
+    var el = document.getElementById("toast");
+    if(!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(el._t);
+    el._t = setTimeout(function(){ el.classList.remove("show"); }, 2600);
+  }
+
+  function toggleHidden(id, hide){
+    var el = document.getElementById(id);
+    if(el) el.hidden = hide;
+  }
+
+  function sendMessage(role, subjectId){
+    var persona = PERSONA[role];
+    messages.push({
+      id: nextMsgId++,
+      subjectId: subjectId,
+      senderId: persona.id,
+      senderName: persona.name,
+      role: role==="mentor" ? "mentor" : "mentee",
+      text: arguments[2],
+      status: "pending",
+      time: nowLabel()
+    });
+  }
+
+  function approveRequest(reqId){
+    var r = mentorRequests.filter(function(x){ return x.id===reqId; })[0];
+    if(!r) return;
+    r.status = "approved";
+    var s = subjects[r.subjectId];
+    if(s.mentors.indexOf(r.studentName)===-1) s.mentors.push(r.studentName);
+    render();
+    showToast("อนุมัติ "+r.studentName+" เป็นผู้แนะนำวิชา "+s.code+" แล้ว");
+  }
+
+  function confirmRejectRequest(reqId){
+    var textarea = document.getElementById("reject-reason-"+reqId);
+    var reason = textarea ? textarea.value.trim() : "";
+    if(!reason){ showToast("กรุณาระบุเหตุผลก่อนยืนยัน"); return; }
+    var r = mentorRequests.filter(function(x){ return x.id===reqId; })[0];
+    r.status = "rejected";
+    r.reason = reason;
+    render();
+    showToast("ปฏิเสธคำขอของ "+r.studentName+" แล้ว");
+  }
+
+  function approveMessage(id){
+    var m = messages.filter(function(x){ return x.id===id; })[0];
+    if(!m) return;
+    m.status = "published";
+    render();
+    showToast("เผยแพร่ข้อความแล้ว");
+  }
+
+  function confirmRejectMessage(id){
+    var textarea = document.getElementById("reject-msg-reason-"+id);
+    var reason = textarea ? textarea.value.trim() : "";
+    if(!reason){ showToast("กรุณาระบุเหตุผลก่อนยืนยัน"); return; }
+    var m = messages.filter(function(x){ return x.id===id; })[0];
+    m.status = "rejected";
+    m.reason = reason;
+    render();
+    showToast("ปฏิเสธข้อความแล้ว พร้อมแจ้งเหตุผลกลับไปยังผู้ส่ง");
+  }
+
+  function prefillCriteriaForm(subjectId){
+    var sel = document.getElementById("criteria-subject");
+    var val = document.getElementById("criteria-value");
+    var s = subjects[subjectId];
+    if(!sel || !val) return;
+    sel.value = subjectId;
+    var radio = document.querySelector('input[name="criteria-type"][value="'+s.criteria.type+'"]');
+    if(radio) radio.checked = true;
+    val.value = s.criteria.value;
+    val.focus();
+  }
+
+  function saveCriteria(){
+    var subjectId = document.getElementById("criteria-subject").value;
+    var typeInput = document.querySelector('input[name="criteria-type"]:checked');
+    var value = document.getElementById("criteria-value").value.trim();
+    if(!value){ showToast("กรุณากรอกค่าเกณฑ์ก่อนบันทึก"); return; }
+    subjects[subjectId].criteria = { type: typeInput.value, value: value };
+    render();
+    showToast("บันทึกเกณฑ์ของ "+subjects[subjectId].code+" แล้ว");
+  }
+
+  document.addEventListener("click", function(e){
+    var t = e.target.closest("[data-action]");
+    if(!t) return;
+    var action = t.dataset.action;
+    if(action==="back-to-rooms"){ state[t.dataset.role].screen="rooms"; render(); }
+    else if(action==="open-room" || action==="goto-chat"){ state[t.dataset.role].screen="chat"; state[t.dataset.role].subjectId=t.dataset.subject; render(); }
+    else if(action==="tab"){
+      var role=t.dataset.role, tab=t.dataset.tab;
+      if(tab==="rooms" || tab==="status"){ state[role].screen=tab; render(); }
+      else { showToast('ฟีเจอร์ "'+t.textContent.trim()+'" ยังไม่รวมอยู่ใน prototype นี้'); }
+    }
+    else if(action==="admin-tab"){ state.admin.screen=t.dataset.tab; render(); }
+    else if(action==="approve-req"){ approveRequest(t.dataset.req); }
+    else if(action==="show-reject-req"){ toggleHidden("reject-panel-"+t.dataset.req,false); }
+    else if(action==="cancel-reject-req"){ toggleHidden("reject-panel-"+t.dataset.req,true); }
+    else if(action==="confirm-reject-req"){ confirmRejectRequest(t.dataset.req); }
+    else if(action==="approve-msg"){ approveMessage(Number(t.dataset.msg)); }
+    else if(action==="show-reject-msg"){ toggleHidden("reject-msg-panel-"+t.dataset.msg,false); }
+    else if(action==="cancel-reject-msg"){ toggleHidden("reject-msg-panel-"+t.dataset.msg,true); }
+    else if(action==="confirm-reject-msg"){ confirmRejectMessage(Number(t.dataset.msg)); }
+    else if(action==="edit-criteria"){ prefillCriteriaForm(t.dataset.subject); }
+    else if(action==="reset-criteria-form"){ document.getElementById("criteria-form").reset(); }
+  });
+
+  document.addEventListener("submit", function(e){
+    var form = e.target;
+    if(form.dataset && form.dataset.action==="send"){
+      e.preventDefault();
+      var ta = form.querySelector("textarea");
+      var text = ta.value.trim();
+      if(!text) return;
+      sendMessage(form.dataset.role, form.dataset.subject, text);
+      render();
+      showToast("ส่งข้อความแล้ว กำลังรอผู้ดูแลระบบตรวจสอบก่อนเผยแพร่");
+    } else if(form.id==="criteria-form"){
+      e.preventDefault();
+      saveCriteria();
+    }
+  });
+
+  document.querySelectorAll(".role-tab").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      state.role = btn.dataset.role;
+      document.querySelectorAll(".role-tab").forEach(function(b){ b.classList.toggle("active", b===btn); });
+      render();
+    });
+  });
+
+  document.getElementById("reset-btn").addEventListener("click", function(){
+    location.reload();
+  });
+
+  render();
+})();
+</script>
