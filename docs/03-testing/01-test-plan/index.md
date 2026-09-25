@@ -13,3 +13,8 @@
 - [[20260907-01-acceptance-criteria-personalized-learning-reminder|Acceptance Criteria: ระบบเตือนและแนะนำแนวทางการเรียนส่วนบุคคล]]
 - [[20260907-02-test-plan-personalized-learning-reminder|Test Plan: ระบบเตือนและแนะนำแนวทางการเรียนส่วนบุคคล]]
 - [[20260908-01-test-spec-personalized-recommendation|Test Spec: คำแนะนำแนวทางการเรียนเฉพาะบุคคล]]
+- [[20260912-01-acceptance-criteria-high-grade-peer-review-chat|Acceptance Criteria: ช่องแชทรีวิวและแนะนำวิธีการเรียนจากนักศึกษาเกรดสูง]]
+- [[20260912-02-test-plan-high-grade-peer-review-chat|Test Plan: ช่องแชทรีวิวและแนะนำวิธีการเรียนจากนักศึกษาเกรดสูง]]
+- [[20260912-03-test-spec-risk-notification|Test Spec: การตรวจจับเงื่อนไขความเสี่ยงและแจ้งเตือนแบบ in-app]]
+- [[20260912-04-test-spec-weekly-summary|Test Spec: สรุปภาพรวมสถานการณ์การเรียนรายสัปดาห์]]
+- [[20260912-05-test-spec-admin-criteria-management|Test Spec: การจัดการเกณฑ์/ตัวแปรของผู้ดูแลระบบ และสถาปัตยกรรมรองรับหมวดหมู่อื่น]]
