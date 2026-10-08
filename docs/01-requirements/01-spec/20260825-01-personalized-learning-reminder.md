@@ -54,3 +54,5 @@ _(ไม่พบเอกสาร requirement เดิมในโปรเ�
 > ดูฟีเจอร์และ journey ที่ derive จากเอกสารนี้: [[../../02-design/01-prototypes/20260827-01-features-list-personalized-learning-reminder|Features List]], [[../../02-design/01-prototypes/20260827-02-user-journey-student-personalized-learning-reminder|User Journey: นักเรียน/นักศึกษา]]
 
 > ดู test plan ที่ derive จากเอกสารนี้: [[../../03-testing/01-test-plan/20260907-01-acceptance-criteria-personalized-learning-reminder|Acceptance Criteria]], [[../../03-testing/01-test-plan/20260907-02-test-plan-personalized-learning-reminder|Test Plan]]
+
+> ภาพรวมสถาปัตยกรรมที่เกี่ยวข้อง: [[../../02-design/02-technical/high-level-architecture|High Level Architecture]]

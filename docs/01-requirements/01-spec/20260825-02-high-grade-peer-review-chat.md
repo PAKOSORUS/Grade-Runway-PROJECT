@@ -53,3 +53,5 @@ _(ต้องการข้อมูลเพิ่มเติมจากผ
 > ดู prototype ที่ derive จากเอกสารนี้: [[../../02-design/01-prototypes/prototypes/high-grade-mentor-chat/index|Prototype: ช่องแชทรีวิวและแนะนำวิธีการเรียนจากนักศึกษาเกรดสูง]]
 
 > ดู test plan ที่ derive จากเอกสารนี้: [[../../03-testing/01-test-plan/20260912-01-acceptance-criteria-high-grade-peer-review-chat|Acceptance Criteria]], [[../../03-testing/01-test-plan/20260912-02-test-plan-high-grade-peer-review-chat|Test Plan]]
+
+> ภาพรวมสถาปัตยกรรมที่เกี่ยวข้อง: [[../../02-design/02-technical/high-level-architecture|High Level Architecture]]

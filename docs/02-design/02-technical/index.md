@@ -25,3 +25,5 @@ input จากโฟลเดอร์อื่น: features list และ use
 ## เอกสารในโฟลเดอร์นี้
 
 _(รายการด้านล่างจะถูกเพิ่มโดย skill เมื่อสร้างเอกสารแต่ละฉบับ)_
+
+- [[high-level-architecture|High Level Architecture (Conceptual)]] — ภาพรวมระบบเชิงแนวคิด ยังไม่ผูกกับ technical stack
