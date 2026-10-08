@@ -969,3 +969,5 @@ sequenceDiagram
 
 ---
 ย้อนกลับ: [[index|02-technical]] | ที่เกี่ยวข้อง: [[database-spec|Database Spec]]
+
+> รายละเอียดขั้นตอนภายในของแต่ละ operation: [[detailed-design|Detailed Design]]
