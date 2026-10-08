@@ -72,5 +72,7 @@
 
 > ดู test plan ที่ derive จากเอกสารนี้: [[../../03-testing/01-test-plan/20261007-01-acceptance-criteria-logging-pdpa-compliance|Acceptance Criteria]], [[../../03-testing/01-test-plan/20261007-02-test-plan-logging-pdpa-compliance|Test Plan]]
 
+> ภาพรวมสถาปัตยกรรมที่เกี่ยวข้อง: [[../../02-design/02-technical/high-level-architecture|High Level Architecture]]
+
 ---
 ย้อนกลับ: [[index|01-spec]]
