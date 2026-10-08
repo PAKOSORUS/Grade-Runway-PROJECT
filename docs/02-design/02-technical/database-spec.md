@@ -19,12 +19,16 @@ requirement ที่ครอบคลุมและรหัสอ้าง�
 | C-US1..5, C-BR1..4 | User Story / Business Rule ของช่องแชท | [[../../01-requirements/01-spec/20260825-02-high-grade-peer-review-chat\|spec 02]] |
 | F-C1..F-C12 | ฟีเจอร์ #1-12 | [[../01-prototypes/20260827-03-features-list-high-grade-peer-review-chat\|Features List 02]] |
 | AC-C1..AC-C6 | Acceptance Criteria ของ spec 02 | [[../../03-testing/01-test-plan/20260912-01-acceptance-criteria-high-grade-peer-review-chat\|AC spec 02]] |
-| P-US1..5, P-BR-audit/PDPA/retention/security | User Story / Business Rule ของ log และ PDPA (ยังไม่มี features list/journey/AC) | [[../../01-requirements/01-spec/20260825-03-logging-pdpa-compliance\|spec 03]] |
+| P-US1..5, P-BR audit/PDPA/retention/security | User Story (US1..US5 ตามลำดับใน spec) / Business Rule ของ log และ PDPA | [[../../01-requirements/01-spec/20260825-03-logging-pdpa-compliance\|spec 03]] |
+| F-P1..F-P26 | ฟีเจอร์ #1-26 ของ spec 03 (F-P23..26 = Won't have) | [[../01-prototypes/20261007-01-features-list-logging-pdpa-compliance\|Features List 03]] |
+| AC-P1..AC-P21 | Acceptance Criteria AC-1..AC-21 ของ spec 03 | [[../../03-testing/01-test-plan/20261007-01-acceptance-criteria-logging-pdpa-compliance\|AC spec 03]] |
+| TC-P1..TC-P50 | Test Case TC-01..TC-50 ของ spec 03 | [[../../03-testing/01-test-plan/20261007-02-test-plan-logging-pdpa-compliance\|Test Plan 03]] |
 | J-R, J-Mentor, J-Mentee, J-Admin | User Journey นักเรียน / mentor / นักศึกษาทั่วไป / ผู้ดูแลระบบ | [[../01-prototypes/20260827-02-user-journey-student-personalized-learning-reminder\|J-R]], [[../01-prototypes/20260827-04-user-journey-mentor-high-grade-peer-review-chat\|J-Mentor]], [[../01-prototypes/20260827-05-user-journey-mentee-high-grade-peer-review-chat\|J-Mentee]], [[../01-prototypes/20260827-06-user-journey-admin-high-grade-peer-review-chat\|J-Admin]] |
+| J-Auditor, J-Subject, J-Officer | User Journey ผู้ตรวจสอบ / เจ้าของข้อมูล / เจ้าหน้าที่ PDPA | [[../01-prototypes/20261007-02-user-journey-auditor-logging-pdpa-compliance\|J-Auditor]], [[../01-prototypes/20261007-03-user-journey-data-subject-logging-pdpa-compliance\|J-Subject]], [[../01-prototypes/20261007-04-user-journey-data-controller-logging-pdpa-compliance\|J-Officer]] |
 
-เอกสารนี้ยังใช้ test spec ใน [[../../03-testing/01-test-plan/index|test plan]] ตรวจกรณีขอบ (เช่น TS-06 แจ้งเตือนรวม, TS-09 ข้อมูลย้อนหลังไม่พอ, TS-14 snapshot เกณฑ์, TS-15 หมวดหมู่ผู้ใช้ configurable)
+เอกสารนี้ยังใช้ test spec ใน [[../../03-testing/01-test-plan/index|test plan]] ตรวจกรณีขอบ (เช่น TS-06 แจ้งเตือนรวม, TS-09 ข้อมูลย้อนหลังไม่พอ, TS-14 snapshot เกณฑ์, TS-15 หมวดหมู่ผู้ใช้ configurable, TC-P17 ตรวจ tamper-evident, TC-P23 ขอบระยะเก็บ log, TC-P38/39 ขอบระยะเก็บข้อมูลนักศึกษา)
 
-อยู่นอกขอบเขต: การเลือกเทคโนโลยี, ช่องทางแจ้งเตือนนอก in-app, การใช้ในบริบทองค์กร, การเชื่อมระบบเกรดภายนอก, การออกแบบระบบแจ้งเหตุข้อมูลรั่วไหลอัตโนมัติ (เป็นกระบวนการระดับสถาบัน)
+อยู่นอกขอบเขต: การเลือกเทคโนโลยี, ช่องทางแจ้งเตือนนอก in-app, การใช้ในบริบทองค์กร, การเชื่อมระบบเกรดภายนอก, การออกแบบระบบแจ้งเหตุข้อมูลรั่วไหลอัตโนมัติ (F-P19 เป็นกระบวนการระดับสถาบัน นอกระบบ — Q13)
 
 ## 2. ER Diagram
 
@@ -241,6 +245,7 @@ erDiagram
         string author_user_id FK
         string content
         string status
+        string withdrawn_reason
         boolean posted_as_mentor
         datetime posted_at
     }
@@ -285,6 +290,8 @@ erDiagram
         string user_id FK
         string request_type
         string status
+        string fulfilment_outcome
+        string referenced_message_ids
         string decided_by FK
         datetime submitted_at
         datetime completed_at
@@ -297,8 +304,11 @@ erDiagram
         datetime occurred_at
         string target
         string result
+        string failure_reason
         string before_value
         string after_value
+        string integrity_marker
+        string previous_marker
         string retention_policy_id FK
     }
     RETENTION_POLICY {
@@ -312,7 +322,7 @@ erDiagram
     }
 ```
 
-หมายเหตุ: `actor_user_id` ใน AUDIT_LOG_ENTRY เป็นการอ้างอิงอย่างเดียว ไม่บังคับ referential เพราะอยู่ในที่เก็บแยก (ดูหัวข้อ 3); `before_value`/`after_value` เป็น "โครงสร้างซ้อน"
+หมายเหตุ: `actor_user_id` ใน AUDIT_LOG_ENTRY เป็นการอ้างอิงอย่างเดียว ไม่บังคับ referential เพราะอยู่ในที่เก็บแยก (ดูหัวข้อ 3); `before_value`/`after_value` เป็น "โครงสร้างซ้อน"; `referenced_message_ids` เป็น "รายการ" ของตัวระบุข้อความ (อ้างอิงอย่างเดียว ไม่บังคับ FK); `integrity_marker`/`previous_marker` เป็นตัวบ่งชี้ความสมบูรณ์เชิงแนวคิด
 
 ## 3. ความสอดคล้องกับ Data Concept
 
@@ -330,12 +340,12 @@ erDiagram
 | MENTOR_NOMINATION | MENTOR_NOMINATION | คงเดิม + snapshot ค่าจริง/เกณฑ์ |
 | MENTOR_GRANT | MENTOR_GRANT | คงเดิม (0..1 ต่อ nomination) |
 | CHAT_ROOM | CHAT_ROOM | คงเดิม 1:1 กับ COURSE |
-| MESSAGE | MESSAGE | คงเดิม; `author_user_id` ว่างได้เมื่อทำให้ไม่ระบุตัวตน |
+| MESSAGE | MESSAGE | คงเดิม; `author_user_id` ว่างได้เมื่อทำให้ไม่ระบุตัวตน; เพิ่ม `withdrawn_reason` |
 | MODERATION_DECISION | MODERATION_DECISION | คงเดิม (0..1 ต่อ MESSAGE) |
 | PRIVACY_NOTICE | PRIVACY_NOTICE | คงเดิม |
 | CONSENT_RECORD | CONSENT_RECORD | คงเดิม บันทึกแบบเหตุการณ์ |
-| DATA_SUBJECT_REQUEST | DATA_SUBJECT_REQUEST | คงเดิม |
-| AUDIT_LOG_ENTRY | AUDIT_LOG_ENTRY | คงเดิม; ขยาย before/after; อ้าง USER แบบไม่บังคับ referential |
+| DATA_SUBJECT_REQUEST | DATA_SUBJECT_REQUEST | คงเดิม + `fulfilment_outcome`, `referenced_message_ids` |
+| AUDIT_LOG_ENTRY | AUDIT_LOG_ENTRY | คงเดิม; ขยาย before/after, `failure_reason`, integrity marker; อ้าง USER แบบไม่บังคับ referential |
 | RETENTION_POLICY | RETENTION_POLICY | คงเดิม |
 
 **ส่วนต่างจาก data concept ที่ผู้ใช้ยอมรับแล้ว (2026-10-08): เก็บเป็นรายละเอียดระดับ schema ในเอกสารนี้ ไม่ย้อนแก้ architecture** แนะนำให้รัน `/sync-architecture` ภายหลังเพื่อให้ data concept ใน architecture ตรงกับเอกสารนี้
@@ -343,22 +353,31 @@ erDiagram
 | รหัส | ตาราง / การเปลี่ยน | ประเภท | เหตุผล |
 |---|---|---|---|
 | D1 | ALERT_CONDITION | ตารางเชื่อม | แจ้งเตือนรวมหลายเงื่อนไข + snapshot เกณฑ์ (AC-R1 edge, AC-R4 edge, TS-06, TS-14) — ทำให้ `RISK_RULE—ALERT` เป็น many-to-many |
-| D2 | NOTIFICATION | ตารางใหม่ | กล่องแจ้งเตือน in-app ของ F-R3, F-C10, F-C11 และผลคำร้อง PDPA พร้อม read state |
+| D2 | NOTIFICATION | ตารางใหม่ | กล่องแจ้งเตือน in-app ของ F-R3, F-C10, F-C11 และผลคำร้อง PDPA (F-P15, F-P16) พร้อม read state |
 | D3 | TERM | lookup | แทนแนวคิด "ภาคการศึกษาปัจจุบัน" (C-BR3, AC-C3) |
 | D4 | USER_CATEGORY | lookup | หมวดหมู่ผู้ใช้ที่ configurable (F-R7, AC-R5, TS-15) |
 | D5 | `MENTOR_CRITERIA.course_id` | ความสัมพันธ์ | เกณฑ์ต่อวิชา (F-C4) |
 | D6 | role `data_staff` และ status `minimized/anonymized` | ค่า enum | บุคลากรผู้ให้ข้อมูลการเรียน (architecture §2) และการกำจัดข้อมูลตาม retention |
 
-ส่วนขยายระดับ attribute ที่ไม่ต้องแก้ architecture: `RECOMMENDATION.alert_id` (ว่างได้), ผู้ตัดสิน (`decided_by`, `granted_by`, `updated_by`) อ้าง USER, `AUDIT_LOG_ENTRY` ผูก USER แบบอ้างอิงอย่างเดียว (ไม่ลบตาม user), และ RETENTION_POLICY กำกับตารางอื่นผ่านการแมป `data_category` ในหัวข้อ 6 (ไม่เพิ่ม FK)
+ส่วนขยายระดับ attribute ที่ไม่ต้องแก้ architecture (ไม่เพิ่ม entity):
+
+| รหัส | ตาราง.คอลัมน์ | เหตุผล |
+|---|---|---|
+| A0 | `RECOMMENDATION.alert_id` (ว่างได้) และผู้ตัดสิน (`decided_by`, `granted_by`, `updated_by`) อ้าง USER; AUDIT_LOG_ENTRY ผูก USER แบบอ้างอิงอย่างเดียว; RETENTION_POLICY กำกับตารางอื่นผ่านการแมป `data_category` ในหัวข้อ 6 (ไม่เพิ่ม FK) | ขยายระดับ attribute เดิม |
+| A1 | `AUDIT_LOG_ENTRY.failure_reason` | บันทึกความล้มเหลวพร้อมเหตุผล (AC-P2, AC-P5, AC-P9; TC-P2, TC-P5, TC-P11) |
+| A2 | `AUDIT_LOG_ENTRY.integrity_marker`, `previous_marker` | tamper-evident (F-P8, AC-P8, TC-P17) |
+| A3 | `DATA_SUBJECT_REQUEST.fulfilment_outcome` | ผลดำเนินการเต็ม/บางส่วน (AC-P6, AC-P14 ข้อ 3, TC-P33) |
+| A4 | `DATA_SUBJECT_REQUEST.referenced_message_ids` | ข้อความแชทที่ผู้อื่นเขียนแต่อ้างถึงผู้ร้อง (F-P21, AC-P20, TC-P48; Q10) |
+| A5 | `MESSAGE.withdrawn_reason` | แยกสาเหตุการถอนเนื้อหา (AC-P13, AC-P20; Q4, Q10) |
 
 เหตุผลที่ไม่เพิ่มตารางประวัติแยก: การเปลี่ยนเกณฑ์/นโยบาย/บทบาทบันทึกลง AUDIT_LOG_ENTRY (ค่าก่อน-หลัง) และ snapshot อยู่ในแถวที่เกิดจากเกณฑ์นั้น (ALERT_CONDITION, MENTOR_NOMINATION)
 
 ## 4. รายละเอียดแต่ละตาราง
 
-รูปแบบ: "ชนิด" เป็นชนิดเชิงแนวคิด (ข้อความ, ข้อความยาว, จำนวนเต็ม, ทศนิยม, จริง/เท็จ, วันที่, วันเวลา, ตัวระบุ (ID), ค่าจากรายการ, โครงสร้างซ้อน) ชื่อ operation อ้างถึง [[api-spec|API Spec]]; Q# หมายถึงการตัดสินใจในหัวข้อ 10
+รูปแบบ: "ชนิด" เป็นชนิดเชิงแนวคิด (ข้อความ, ข้อความยาว, จำนวนเต็ม, ทศนิยม, จริง/เท็จ, วันที่, วันเวลา, ตัวระบุ (ID), ค่าจากรายการ, โครงสร้างซ้อน, รายการ) ชื่อ operation อ้างถึง [[api-spec|API Spec]]; Q# หมายถึงการตัดสินใจในหัวข้อ 10
 
 ### 4.1 USER
-- **วัตถุประสงค์/ที่มา:** ผู้ใช้ทุกบทบาท อ้างอิงตัวตนจากระบบยืนยันตัวตนของสถาบัน (ไม่เก็บรหัสผ่าน) — architecture Q6, F-R3, F-C2, P-BR security
+- **วัตถุประสงค์/ที่มา:** ผู้ใช้ทุกบทบาท อ้างอิงตัวตนจากระบบยืนยันตัวตนของสถาบัน (ไม่เก็บรหัสผ่าน) — architecture Q6, F-R3, F-C2, F-P4, F-P18, AC-P4, AC-P17
 - **เจ้าของ / ความอ่อนไหว:** ผู้ใช้/สถาบัน — ข้อมูลส่วนบุคคล
 
 | คอลัมน์ | ชนิด | จำเป็น? | Key | คำอธิบาย/กฎ |
@@ -366,7 +385,7 @@ erDiagram
 | user_id | ตัวระบุ (ID) | ใช่ | PK | ตัวระบุภายใน |
 | identity_ref | ข้อความ | ใช่ | UK | ตัวอ้างอิงตัวตนจากระบบของสถาบัน |
 | display_name | ข้อความ | ใช่ | | ชื่อที่แสดงในห้องแชท/คิว |
-| role | ค่าจากรายการ | ใช่ | | `student, admin, auditor, data_staff` (1 บัญชี 1 role) mentor ไม่ใช่ role |
+| role | ค่าจากรายการ | ใช่ | | `student, admin, auditor, data_staff` (1 บัญชี 1 role; auditor เป็นคนละบัญชีกับ admin) mentor ไม่ใช่ role; ไม่มี role อาจารย์ (Q14) |
 | category_code | ข้อความ | ใช่ | FK → USER_CATEGORY | ค่าเริ่มต้น `student` |
 | status | ค่าจากรายการ | ใช่ | | `active, ended, minimized, anonymized` |
 | status_ended_at | วันที่ | ไม่ | | วันที่พ้นสถานภาพ เริ่มนับ retention |
@@ -374,9 +393,9 @@ erDiagram
 | created_at / last_sign_in_at | วันเวลา | ใช่ / ไม่ | | |
 
 - **ความสัมพันธ์:** 1 USER → หลาย ENROLLMENT, ACADEMIC_RECORD, ALERT, RECOMMENDATION, WEEKLY_SUMMARY, NOTIFICATION, MENTOR_NOMINATION, MESSAGE, CONSENT_RECORD, DATA_SUBJECT_REQUEST; AUDIT_LOG_ENTRY ผูกแบบอ้างอิงอย่างเดียว ห้ามลบ USER ที่ยังมีข้อมูลที่อยู่ในช่วง retention
-- **Integrity:** `identity_ref` ไม่ซ้ำ; `status_ended_at` ต้องมีเมื่อ status = `ended`
-- **วงจรชีวิต:** สร้างเป็น shell เมื่อบุคลากรนำเข้า → ผูกตัวตนเมื่อ sign in; เปลี่ยน status เป็น `ended` เมื่อพ้นสถานภาพ; หลังสถานภาพ +5 ปี ทำให้ไม่ระบุตัวตน (`anonymized`) หรือคงเฉพาะตัวระบุขั้นต่ำ (`minimized`) ถ้ายังมีข้อมูลที่ต้องเก็บถาวร
-- **Operation:** อ่าน: ส่วนใหญ่ (ตรวจสิทธิ์) / เขียน: sign-in-with-institution-identity, import-enrollments, run-retention-sweep, fulfil-data-subject-request
+- **Integrity:** `identity_ref` ไม่ซ้ำ; `status_ended_at` ต้องมีเมื่อ status = `ended`; ห้ามเปลี่ยน role ของตนเอง; ห้ามเปลี่ยน role ของบัญชี `minimized/anonymized`
+- **วงจรชีวิต:** สร้างเป็น shell เมื่อบุคลากรนำเข้า → ผูกตัวตนเมื่อ sign in; `role` เปลี่ยนได้ผ่าน change-user-role เท่านั้น (admin, audit `role_change` ก่อน-หลัง — Q9); เปลี่ยน status เป็น `ended` เมื่อพ้นสถานภาพ; หลังสถานภาพ +5 ปี (เกินระยะ ไม่ใช่ครบพอดี) ทำให้ไม่ระบุตัวตน (`anonymized`) หรือคงเฉพาะตัวระบุขั้นต่ำ (`minimized`) ถ้ายังมีข้อมูลที่ต้องเก็บถาวร
+- **Operation:** อ่าน: ส่วนใหญ่ (ตรวจสิทธิ์) / เขียน: sign-in-with-institution-identity, import-enrollments, change-user-role, run-retention-sweep, fulfil-data-subject-request
 
 ### 4.2 USER_CATEGORY (เพิ่ม D4)
 - **วัตถุประสงค์/ที่มา:** รายการหมวดหมู่ผู้ใช้ที่ใช้เกณฑ์ (เผื่อบริบทอื่น) — F-R7, AC-R5, TS-15
@@ -400,12 +419,12 @@ erDiagram
 |---|---|---|---|---|
 | term_id | ตัวระบุ (ID) | ใช่ | PK | |
 | term_code | ข้อความ | ใช่ | UK | |
-| start_date / end_date | วันที่ | ใช่ | | end_date ≥ start_date |
+| start_date / end_date | วันที่ | ใช่ | | end_date ≥ start_date; ได้จาก input ของการนำเข้า (Q15) |
 | is_current | จริง/เท็จ | ใช่ | | มีได้เพียงหนึ่งแถวที่เป็นจริง |
 
 - **ความสัมพันธ์:** 1 → หลาย ENROLLMENT, ACADEMIC_RECORD, MENTOR_NOMINATION; ห้ามลบ
-- **Integrity:** `is_current` เป็นจริงได้หนึ่งแถวพร้อมกัน
-- **วงจรชีวิต:** สร้างจากการนำเข้า; แอดมินสลับภาคปัจจุบัน (บันทึก audit); เก็บถาวรเป็นข้อมูลอ้างอิง
+- **Integrity:** `is_current` เป็นจริงได้หนึ่งแถวพร้อมกัน; ภาคที่มีอยู่แล้วห้ามถูกแก้ `start_date`/`end_date` ทับจากการนำเข้า (วันที่ที่ส่งมาต่างจากเดิมถูกปฏิเสธรายแถว)
+- **วงจรชีวิต:** สร้างจากการนำเข้าโดยระบุรหัสภาคและวันเริ่ม/สิ้นสุด (`is_current` = เท็จ เมื่อสร้าง — Q15); แอดมินสลับภาคปัจจุบัน (บันทึก audit); เก็บถาวรเป็นข้อมูลอ้างอิง
 - **Operation:** อ่าน: ห้องแชทและ operation ที่ตรวจภาคปัจจุบัน / เขียน: import-enrollments, set-current-term
 
 ### 4.4 COURSE
@@ -437,10 +456,10 @@ erDiagram
 - **ความสัมพันธ์:** หลาย → 1 USER, COURSE, TERM; ลบ USER ตาม retention แล้วลบตาม
 - **Integrity:** สิทธิ์เข้าห้อง = status `enrolled` และ term เป็นภาคปัจจุบัน
 - **วงจรชีวิต:** นำเข้า/อัปเดต; เพิ่ม/ถอนวิชาระหว่างภาคแสดงด้วยสถานะ (ยังไม่ระบุใน spec ว่ามีดีเลย์หรือไม่)
-- **Operation:** เขียน: import-enrollments, run-retention-sweep / อ่าน: evaluate-learning-risk, import-academic-records, generate-mentor-nominations, generate-weekly-summaries, list-my-chat-rooms, get-chat-room, list-published-messages, post-chat-message, get-my-mentor-status
+- **Operation:** เขียน: import-enrollments, run-retention-sweep, fulfil-data-subject-request (ตามชนิดคำร้อง) / อ่าน: evaluate-learning-risk, import-academic-records, generate-mentor-nominations, generate-weekly-summaries, list-my-chat-rooms, get-chat-room, list-published-messages, post-chat-message, get-my-mentor-status, fulfil-data-subject-request
 
 ### 4.6 ACADEMIC_RECORD
-- **วัตถุประสงค์/ที่มา:** ข้อมูลการเรียนต่อผู้เรียน (เกรด/GPA, คะแนน, การเข้าเรียน, การส่งงาน) เป็นฐานของการประเมิน คำแนะนำ สรุปรายสัปดาห์ และเสนอชื่อ mentor — F-R1, F-R2, F-R4, F-R5, F-C3, AC-R1..R3, AC-C1
+- **วัตถุประสงค์/ที่มา:** ข้อมูลการเรียนต่อผู้เรียน (เกรด/GPA, คะแนน, การเข้าเรียน, การส่งงาน) เป็นฐานของการประเมิน คำแนะนำ สรุปรายสัปดาห์ และเสนอชื่อ mentor — F-R1, F-R2, F-R4, F-R5, F-C3, F-P2, AC-R1..R3, AC-C1, AC-P2
 - **เจ้าของ / ความอ่อนไหว:** Grade Runway (นำเข้าโดยบุคลากร) — **อ่อนไหวสูง**
 
 | คอลัมน์ | ชนิด | จำเป็น? | Key | คำอธิบาย/กฎ |
@@ -463,8 +482,8 @@ erDiagram
 | created_at / updated_at | วันเวลา | ใช่ | | |
 
 - **ความสัมพันธ์:** หลาย → 1 USER; หลาย → 1 COURSE (ว่างเฉพาะ cumulative_gpa); หลาย → 1 TERM; หลาย → 1 RETENTION_POLICY
-- **Integrity:** UK รวม (user_id, course_id, term_id, record_type, period_index, item_ref) เพื่อ upsert; ค่าตัวเลขไม่ติดลบ; อัตราเข้าเรียน 0-100; แถวที่ `voided_at` ไม่ถูกนับในการประเมิน
-- **วงจรชีวิต:** สร้างโดยการนำเข้า; แก้ไข/ยกเลิกโดย correct-academic-record (ทุกครั้งต้อง audit ค่าก่อน-หลัง); ข้อมูลที่ไม่ใช่ทรานสคริปต์ลบหรือทำให้ไม่ระบุตัวตนหลังสถานภาพ +5 ปี
+- **Integrity:** UK รวม (user_id, course_id, term_id, record_type, period_index, item_ref) เพื่อ upsert; ค่าตัวเลขไม่ติดลบ; อัตราเข้าเรียน 0-100; แถวที่ `voided_at` ไม่ถูกนับในการประเมิน; การแก้ที่ถูกปฏิเสธต้องไม่เปลี่ยนค่าเดิม (AC-P2 ข้อ 2)
+- **วงจรชีวิต:** สร้างโดยการนำเข้า; แก้ไข/ยกเลิกโดย correct-academic-record (ทุกครั้งต้อง audit ค่าก่อน-หลัง; สร้าง: ก่อน=ว่าง, ยกเลิก: หลัง=ว่าง); ข้อมูลที่ไม่ใช่ทรานสคริปต์ลบหรือทำให้ไม่ระบุตัวตนหลังสถานภาพ +5 ปี
 - **Operation:** เขียน: import-academic-records, correct-academic-record, run-retention-sweep, fulfil-data-subject-request / อ่าน: evaluate-learning-risk, generate-personal-recommendation, generate-weekly-summaries, generate-mentor-nominations, get-my-recommendation, fulfil-data-subject-request
 
 ### 4.7 RISK_RULE
@@ -500,8 +519,8 @@ erDiagram
 
 - **ความสัมพันธ์:** หลาย → 1 USER; 1 → หลาย ALERT_CONDITION; 1 → หลาย RECOMMENDATION
 - **Integrity:** ผู้ใช้หนึ่งคนมี ALERT สถานะ `open` ได้เพียงหนึ่งแถวต่อ fingerprint
-- **วงจรชีวิต:** สร้างเมื่อเข้าเงื่อนไขใหม่; superseded เมื่อชุดเงื่อนไขเปลี่ยน; resolved เมื่อไม่เข้าเงื่อนไขแล้ว; ลบ/ทำให้ไม่ระบุตัวตนตาม retention
-- **Operation:** เขียน: evaluate-learning-risk, run-retention-sweep / อ่าน: get-notification-detail, generate-personal-recommendation, fulfil-data-subject-request
+- **วงจรชีวิต:** สร้างเมื่อเข้าเงื่อนไขใหม่; superseded เมื่อชุดเงื่อนไขเปลี่ยน (สร้าง ALERT ใหม่พร้อมแจ้งเตือนใหม่เมื่อชุดไม่ว่าง); resolved เมื่อไม่เข้าเงื่อนไขแล้ว; ลบ/ทำให้ไม่ระบุตัวตนตาม retention
+- **Operation:** เขียน: evaluate-learning-risk, run-retention-sweep, fulfil-data-subject-request / อ่าน: get-notification-detail, generate-personal-recommendation, fulfil-data-subject-request
 
 ### 4.9 ALERT_CONDITION (เพิ่ม D1 ตารางเชื่อม)
 - **วัตถุประสงค์/ที่มา:** เงื่อนไขที่ถูกกระตุ้นต่อ ALERT พร้อม snapshot — AC-R1 edge, AC-R4 edge, TS-06, TS-14 (ตามการตัดสินใจ Q2)
@@ -519,7 +538,7 @@ erDiagram
 - **ความสัมพันธ์:** หลาย → 1 ALERT (ลบตาม ALERT), หลาย → 1 RISK_RULE (ห้ามลบ rule)
 - **Integrity:** UK (alert_id, rule_id, course_id); ALERT ต้องมีอย่างน้อย 1 เงื่อนไข
 - **วงจรชีวิต:** สร้างพร้อม ALERT ห้ามแก้ภายหลัง
-- **Operation:** เขียน: evaluate-learning-risk, run-retention-sweep / อ่าน: get-notification-detail, generate-personal-recommendation
+- **Operation:** เขียน: evaluate-learning-risk, run-retention-sweep, fulfil-data-subject-request / อ่าน: get-notification-detail, generate-personal-recommendation, fulfil-data-subject-request
 
 ### 4.10 RECOMMENDATION
 - **วัตถุประสงค์/ที่มา:** คำแนะนำแนวทางการเรียนเฉพาะบุคคล — F-R4, AC-R2, R-BR3
@@ -539,7 +558,7 @@ erDiagram
 - **ความสัมพันธ์:** หลาย → 1 USER; หลาย → 0..1 ALERT
 - **Integrity:** ไม่สร้างเมื่อ `basis_period_count` ต่ำกว่าเกณฑ์ขั้นต่ำ (`min_history_periods`) — ผลอ่านคืนข้อความ fallback (AC-R2)
 - **วงจรชีวิต:** สร้างเมื่อมี ALERT หรือประเมินซ้ำ; ฉบับเก่า superseded; ลบตาม retention
-- **Operation:** เขียน: generate-personal-recommendation, run-retention-sweep / อ่าน: get-my-recommendation, get-notification-detail, fulfil-data-subject-request
+- **Operation:** เขียน: generate-personal-recommendation, run-retention-sweep, fulfil-data-subject-request / อ่าน: get-my-recommendation, get-notification-detail, fulfil-data-subject-request
 
 ### 4.11 WEEKLY_SUMMARY
 - **วัตถุประสงค์/ที่มา:** สรุปภาพรวมรายสัปดาห์ — F-R5, AC-R3, R-BR4
@@ -556,10 +575,10 @@ erDiagram
 
 - **ความสัมพันธ์:** หลาย → 1 USER
 - **วงจรชีวิต:** สร้างตามรอบสัปดาห์ ห้ามแก้ภายหลัง ลบตาม retention
-- **Operation:** เขียน: generate-weekly-summaries, run-retention-sweep / อ่าน: get-my-weekly-summary, get-notification-detail, generate-weekly-summaries
+- **Operation:** เขียน: generate-weekly-summaries, run-retention-sweep, fulfil-data-subject-request / อ่าน: get-my-weekly-summary, get-notification-detail, generate-weekly-summaries, fulfil-data-subject-request
 
 ### 4.12 NOTIFICATION (เพิ่ม D2)
-- **วัตถุประสงค์/ที่มา:** กล่องแจ้งเตือน in-app ของทุกบทบาท พร้อมสถานะอ่าน และจุดเสียบช่องทางอื่นในอนาคต — F-R3, F-C10, F-C11, R-BR4, P-US3 (แจ้งผลคำร้อง)
+- **วัตถุประสงค์/ที่มา:** กล่องแจ้งเตือน in-app ของทุกบทบาท พร้อมสถานะอ่าน และจุดเสียบช่องทางอื่นในอนาคต — F-R3, F-C10, F-C11, R-BR4, F-P15 และ F-P16 (ยืนยันรับคำร้องและแจ้งผลคำร้อง PDPA), AC-P14, J-Subject ขั้น "ได้รับผลการดำเนินการ"
 - **เจ้าของ / ความอ่อนไหว:** ผู้รับ — อ่อนไหว (เนื้อหาอ้างผลการเรียน)
 
 | คอลัมน์ | ชนิด | จำเป็น? | Key | คำอธิบาย/กฎ |
@@ -576,7 +595,7 @@ erDiagram
 
 - **ความสัมพันธ์:** หลาย → 1 USER; ลบตาม USER ตาม retention
 - **วงจรชีวิต:** สร้างโดยตรรกะธุรกิจ; ผู้รับเปิดอ่านแล้ว `read_at` ถูกบันทึก; เนื้อหาไม่เปลี่ยนตามเกณฑ์ที่แก้ภายหลัง
-- **Operation:** เขียน: evaluate-learning-risk, generate-weekly-summaries, generate-mentor-nominations, decide-mentor-nomination, post-chat-message, decide-message-moderation, decide-data-subject-request, fulfil-data-subject-request, get-notification-detail (read_at), run-retention-sweep / อ่าน: list-my-notifications, get-notification-detail
+- **Operation:** เขียน: evaluate-learning-risk, generate-weekly-summaries, generate-mentor-nominations, decide-mentor-nomination, post-chat-message, decide-message-moderation, submit-data-subject-request, decide-data-subject-request, fulfil-data-subject-request, get-notification-detail (read_at), run-retention-sweep / อ่าน: list-my-notifications, get-notification-detail
 
 ### 4.13 MENTOR_CRITERIA
 - **วัตถุประสงค์/ที่มา:** เกณฑ์เกรด/GPA ที่ใช้เสนอชื่อ mentor ต่อวิชา — F-C4, AC-C1, C-BR1
@@ -592,12 +611,12 @@ erDiagram
 | updated_by / updated_at | ตัวระบุ (ID)/วันเวลา | ใช่ | FK | |
 
 - **ความสัมพันธ์:** หลาย → 0..1 COURSE; 1 → หลาย MENTOR_NOMINATION; ห้ามลบเมื่อมี nomination อ้าง
-- **Integrity:** UK (course_id, criteria_type) ในกลุ่ม active
+- **Integrity:** UK (course_id, criteria_type) ในกลุ่ม active; ผู้ผ่านเกณฑ์ต้องผ่านทุกเกณฑ์ที่ active (AND) โดยเทียบค่าตัวเลข
 - **วงจรชีวิต:** แก้ไขแล้วมีผลกับรอบเสนอชื่อถัดไป ไม่กระทบสิทธิ์ที่อนุมัติแล้ว (assumption จาก AC-C1); บันทึก audit
 - **Operation:** เขียน: save-mentor-criteria / อ่าน: list-mentor-criteria, generate-mentor-nominations, list-mentor-nominations
 
 ### 4.14 MENTOR_NOMINATION
-- **วัตถุประสงค์/ที่มา:** รายชื่อที่ระบบเสนอและผลตัดสินของแอดมิน — F-C3, F-C5, AC-C1, AC-C2, C-BR1
+- **วัตถุประสงค์/ที่มา:** รายชื่อที่ระบบเสนอและผลตัดสินของแอดมิน — F-C3, F-C5, F-P3, F-P4, AC-C1, AC-C2, AC-P3, AC-P4, C-BR1
 - **เจ้าของ / ความอ่อนไหว:** ผู้ดูแลระบบ/นักศึกษา — ข้อมูลส่วนบุคคล (อิงผลการเรียน)
 
 | คอลัมน์ | ชนิด | จำเป็น? | Key | คำอธิบาย/กฎ |
@@ -614,11 +633,11 @@ erDiagram
 
 - **ความสัมพันธ์:** หลาย → 1 COURSE, USER, TERM, MENTOR_CRITERIA; 1 → 0..1 MENTOR_GRANT
 - **Integrity:** ผู้ใช้ต้องมี ENROLLMENT สถานะ enrolled ในวิชา/ภาคนั้น; เสนอชื่อซ้ำไม่ได้ในภาคเดียวกัน; status เปลี่ยนจาก `pending` ได้ครั้งเดียว
-- **วงจรชีวิต:** สร้างโดยระบบ (pending) → แอดมินตัดสิน; ลบ/ทำให้ไม่ระบุตัวตนตาม retention
-- **Operation:** เขียน: generate-mentor-nominations, decide-mentor-nomination, run-retention-sweep / อ่าน: list-mentor-nominations, get-my-mentor-status, list-my-chat-rooms, get-chat-room, post-chat-message, get-chat-activity-overview, get-notification-detail
+- **วงจรชีวิต:** สร้างโดยระบบ (pending) → แอดมินตัดสิน (ทั้ง approve และ reject บันทึก audit `role_change`); ลบ/ทำให้ไม่ระบุตัวตนตาม retention
+- **Operation:** เขียน: generate-mentor-nominations, decide-mentor-nomination, run-retention-sweep, fulfil-data-subject-request / อ่าน: list-mentor-nominations, get-my-mentor-status, list-my-chat-rooms, get-chat-room, post-chat-message, get-chat-activity-overview, get-notification-detail, fulfil-data-subject-request
 
 ### 4.15 MENTOR_GRANT
-- **วัตถุประสงค์/ที่มา:** สิทธิ์ผู้แนะนำที่ได้หลัง approve — F-C6, AC-C2, AC-C4 (ตามการตัดสินใจ Q3)
+- **วัตถุประสงค์/ที่มา:** สิทธิ์ผู้แนะนำที่ได้หลัง approve — F-C6, F-P4, AC-C2, AC-C4, AC-P4 (ตามการตัดสินใจ Q3)
 - **เจ้าของ / ความอ่อนไหว:** ผู้ดูแลระบบ/นักศึกษา — ข้อมูลส่วนบุคคล
 
 | คอลัมน์ | ชนิด | จำเป็น? | Key | คำอธิบาย/กฎ |
@@ -630,7 +649,7 @@ erDiagram
 
 - **ความสัมพันธ์:** 0..1 ต่อ MENTOR_NOMINATION; mentor active = มี grant และ term ของ nomination เป็นภาคปัจจุบัน (สิทธิ์หมดเมื่อสิ้นภาค ไม่มีคอลัมน์/operation ถอนสิทธิ์ ตาม Q3)
 - **วงจรชีวิต:** สร้างตอน approve (บันทึก audit `role_change`); หมดอายุเมื่อสิ้นภาค; ลบตาม retention
-- **Operation:** เขียน: decide-mentor-nomination, run-retention-sweep / อ่าน: post-chat-message, list-my-chat-rooms, get-chat-room, get-my-mentor-status, get-chat-activity-overview
+- **Operation:** เขียน: decide-mentor-nomination, run-retention-sweep, fulfil-data-subject-request / อ่าน: post-chat-message, list-my-chat-rooms, get-chat-room, get-my-mentor-status, get-chat-activity-overview, fulfil-data-subject-request
 
 ### 4.16 CHAT_ROOM
 - **วัตถุประสงค์/ที่มา:** ห้องแชทต่อรายวิชา — F-C1, AC-C3, C-BR2
@@ -648,8 +667,8 @@ erDiagram
 - **Operation:** เขียน: import-enrollments / อ่าน: list-my-chat-rooms, get-chat-room, post-chat-message, list-moderation-queue, get-chat-activity-overview
 
 ### 4.17 MESSAGE
-- **วัตถุประสงค์/ที่มา:** ข้อความในห้องแชทและสถานะ — F-C7, F-C8, F-C9, F-C10, AC-C4..C6, C-BR4
-- **เจ้าของ / ความอ่อนไหว:** ผู้โพสต์ — อาจมีข้อมูลส่วนบุคคลของผู้อื่น (P-BR PDPA)
+- **วัตถุประสงค์/ที่มา:** ข้อความในห้องแชทและสถานะ — F-C7, F-C8, F-C9, F-C10, F-P21, AC-C4..C6, AC-P20, C-BR4
+- **เจ้าของ / ความอ่อนไหว:** ผู้โพสต์ — อาจมีข้อมูลส่วนบุคคลของผู้อื่น (P-BR PDPA, F-P21)
 
 | คอลัมน์ | ชนิด | จำเป็น? | Key | คำอธิบาย/กฎ |
 |---|---|---|---|---|
@@ -658,13 +677,14 @@ erDiagram
 | author_user_id | ตัวระบุ (ID) | เงื่อนไข | FK | ว่างได้เมื่อทำให้ไม่ระบุตัวตน |
 | content | ข้อความยาว | เงื่อนไข | | ไม่ว่างยกเว้นเมื่อถูกลบ/ล้างเนื้อหา |
 | status | ค่าจากรายการ | ใช่ | | `pending, published, rejected, withdrawn` ค่าเริ่มต้น `pending` เสมอ |
+| withdrawn_reason | ค่าจากรายการ | เงื่อนไข | | จำเป็นเมื่อ status = `withdrawn`: `consent_withdrawn, retention, dsr_erase, dsr_third_party` |
 | posted_as_mentor | จริง/เท็จ | ใช่ | | snapshot สิทธิ์ ณ ตอนโพสต์ ใช้แสดง badge |
 | posted_at / published_at | วันเวลา | ใช่ / ไม่ | | |
 
 - **ความสัมพันธ์:** หลาย → 1 CHAT_ROOM; หลาย → 1 USER (ว่างได้หลังทำให้ไม่ระบุตัวตน); 1 → 0..1 MODERATION_DECISION
-- **Integrity:** ผู้อื่นอ่านได้เฉพาะ `published`; ผู้ส่งเห็นข้อความของตนทุกสถานะ; `published_at` ต้องมีเมื่อ published
-- **วงจรชีวิต:** สร้าง pending → ผ่าน/ไม่ผ่านการตรวจ; เมื่อผู้โพสต์ถอน consent/ครบ retention/ถูกลบตามคำร้อง: ลบเนื้อหาที่ยังไม่เผยแพร่ (สถานะ `withdrawn`) ส่วนที่เผยแพร่แล้วทำให้ไม่ระบุตัวผู้เขียน (ตาม Q4)
-- **Operation:** เขียน: post-chat-message, decide-message-moderation, set-consent (กรณีถอน), run-retention-sweep, fulfil-data-subject-request / อ่าน: list-published-messages, list-my-messages, list-moderation-queue, get-chat-activity-overview, get-notification-detail, fulfil-data-subject-request
+- **Integrity:** ผู้อื่นอ่านได้เฉพาะ `published`; ผู้ส่งเห็นข้อความของตนทุกสถานะ; `published_at` ต้องมีเมื่อ published; ข้อความ `withdrawn` ไม่มี content
+- **วงจรชีวิต:** สร้าง pending → ผ่าน/ไม่ผ่านการตรวจ; เมื่อผู้โพสต์ถอน consent/ครบ retention/ถูกลบตามคำร้อง: ลบเนื้อหาที่ยังไม่เผยแพร่ (สถานะ `withdrawn`) ส่วนที่เผยแพร่แล้วทำให้ไม่ระบุตัวผู้เขียน (ตาม Q4); ข้อความที่ถูกอ้างอิงโดย `DATA_SUBJECT_REQUEST.referenced_message_ids` (ผู้อื่นเขียนแต่อ้างถึงผู้ร้อง) ถูกถอนเนื้อหา แม้เผยแพร่แล้ว (`dsr_third_party`, Q10)
+- **Operation:** เขียน: post-chat-message, decide-message-moderation, set-consent (กรณีถอน), run-retention-sweep, fulfil-data-subject-request / อ่าน: list-published-messages, list-my-messages, list-moderation-queue (audit `chat_content_access`), get-chat-activity-overview, get-notification-detail, submit-data-subject-request, fulfil-data-subject-request
 
 ### 4.18 MODERATION_DECISION
 - **วัตถุประสงค์/ที่มา:** ผลการตรวจข้อความก่อนเผยแพร่ — F-C9, AC-C6
@@ -684,7 +704,7 @@ erDiagram
 - **Operation:** เขียน: decide-message-moderation / อ่าน: list-my-messages
 
 ### 4.19 PRIVACY_NOTICE
-- **วัตถุประสงค์/ที่มา:** privacy notice ต่อวัตถุประสงค์และเวอร์ชัน — P-US2, P-BR PDPA
+- **วัตถุประสงค์/ที่มา:** privacy notice ต่อวัตถุประสงค์และเวอร์ชัน พร้อมฐานกฎหมายของข้อมูลแต่ละประเภท — F-P12, F-P13, AC-P12, TC-P25, TC-P26, J-Subject ขั้น "อ่าน privacy notice", P-BR PDPA
 - **เจ้าของ / ความอ่อนไหว:** สถาบัน — ไม่ใช่ข้อมูลส่วนบุคคล
 
 | คอลัมน์ | ชนิด | จำเป็น? | Key | คำอธิบาย/กฎ |
@@ -692,17 +712,17 @@ erDiagram
 | notice_id | ตัวระบุ (ID) | ใช่ | PK | |
 | purpose | ค่าจากรายการ | ใช่ | | `academic_service, chat_participation` (ขยายได้) |
 | version | จำนวนเต็ม | ใช่ | | UK รวม (purpose, version) |
-| legal_basis | ค่าจากรายการ | ใช่ | | `educational_mission, consent` |
+| legal_basis | ค่าจากรายการ | ใช่ | | `educational_mission, consent` — ต้องขอ consent เมื่อฐานเป็น `consent` เท่านั้น (AC-P12) |
 | content | ข้อความยาว | ใช่ | | |
 | status | ค่าจากรายการ | ใช่ | | `current, superseded` หนึ่ง current ต่อ purpose |
 | effective_from / published_by | วันที่/ตัวระบุ (ID) | ใช่ | FK | |
 
 - **ความสัมพันธ์:** 1 → หลาย CONSENT_RECORD; ห้ามลบเวอร์ชันที่มี consent อ้าง
-- **วงจรชีวิต:** เผยแพร่เวอร์ชันใหม่ = เวอร์ชันเดิม superseded; ไม่แก้ย้อนหลัง
+- **วงจรชีวิต:** เผยแพร่เวอร์ชันใหม่ = เวอร์ชันเดิม superseded; ไม่แก้ย้อนหลัง; ไม่เก็บหลักฐาน "การรับทราบ notice" ของฐานภารกิจการศึกษา
 - **Operation:** เขียน: publish-privacy-notice / อ่าน: get-current-privacy-notice, set-consent, list-my-consents
 
 ### 4.20 CONSENT_RECORD
-- **วัตถุประสงค์/ที่มา:** หลักฐานการให้/ถอน consent ต่อวัตถุประสงค์ — P-US2, architecture Q5
+- **วัตถุประสงค์/ที่มา:** หลักฐานการให้/ถอน consent ต่อวัตถุประสงค์ — F-P14, AC-P13, TC-P26..TC-P30, architecture Q5
 - **เจ้าของ / ความอ่อนไหว:** เจ้าของข้อมูล — ข้อมูลส่วนบุคคล
 
 | คอลัมน์ | ชนิด | จำเป็น? | Key | คำอธิบาย/กฎ |
@@ -714,12 +734,12 @@ erDiagram
 | updated_at | วันเวลา | ใช่ | | เวลาเหตุการณ์ |
 
 - **ความสัมพันธ์:** หลาย → 1 USER, PRIVACY_NOTICE
-- **Integrity:** บันทึกแบบเพิ่มต่อท้าย; สถานะปัจจุบัน = แถวล่าสุดต่อ (user_id, purpose); ไม่อนุญาตแก้แถวเดิม
-- **วงจรชีวิต:** สร้างทุกครั้งที่ให้/ถอน (บันทึก audit); เก็บเป็นหลักฐานตามนโยบายนักศึกษา
-- **Operation:** เขียน: set-consent, run-retention-sweep / อ่าน: list-my-consents, list-my-chat-rooms, get-chat-room, list-published-messages, post-chat-message, set-consent
+- **Integrity:** บันทึกแบบเพิ่มต่อท้าย; สถานะปัจจุบัน = แถวล่าสุดต่อ (user_id, purpose); ไม่อนุญาตแก้แถวเดิม; ผู้ใช้ที่ไม่กดยินยอม = ไม่มีแถวใหม่ (ไม่สร้าง granted = เท็จเอง และไม่มีค่าเริ่มต้นเป็นจริง)
+- **วงจรชีวิต:** สร้างทุกครั้งที่ให้/ถอน (บันทึก audit `consent_change`); เก็บเป็นหลักฐานตามนโยบายนักศึกษา
+- **Operation:** เขียน: set-consent, run-retention-sweep, fulfil-data-subject-request / อ่าน: list-my-consents, list-my-chat-rooms, get-chat-room, list-published-messages, post-chat-message, set-consent, fulfil-data-subject-request
 
 ### 4.21 DATA_SUBJECT_REQUEST
-- **วัตถุประสงค์/ที่มา:** คำร้องใช้สิทธิตาม PDPA — P-US3, P-US4, P-BR PDPA
+- **วัตถุประสงค์/ที่มา:** คำร้องใช้สิทธิตาม PDPA — F-P6, F-P15, F-P16, F-P21, F-P22, AC-P6, AC-P14, AC-P15, AC-P20, AC-P21, J-Subject, J-Officer
 - **เจ้าของ / ความอ่อนไหว:** เจ้าของข้อมูล — ข้อมูลส่วนบุคคล
 
 | คอลัมน์ | ชนิด | จำเป็น? | Key | คำอธิบาย/กฎ |
@@ -728,38 +748,44 @@ erDiagram
 | user_id | ตัวระบุ (ID) | ใช่ | FK | |
 | request_type | ค่าจากรายการ | ใช่ | | `access, rectify, erase, object, portability` (สิทธิถอน consent ใช้ set-consent) |
 | detail | ข้อความยาว | ไม่ | | |
+| referenced_message_ids | รายการ | ไม่ | | ตัวระบุข้อความแชทที่ผู้อื่นเขียนแต่อ้างถึงผู้ร้อง ผู้ร้องเลือกจากข้อความ `published` ที่ตนเข้าถึงได้ตอนยื่น (อ้างอิงไม่บังคับ FK; Q10) |
 | status | ค่าจากรายการ | ใช่ | | `submitted, under_review, approved, rejected, completed` |
-| decided_by / decided_at / decision_reason | FK/วันเวลา/ข้อความ | เงื่อนไข | | ผู้ตัดสิน (role admin ตาม Q6) |
-| completed_at / result_summary | วันเวลา/ข้อความยาว | เงื่อนไข | | ผลการดำเนินการ |
+| decided_by / decided_at / decision_reason | FK/วันเวลา/ข้อความ | เงื่อนไข | | ผู้ตัดสิน (role admin ตาม Q6); `decision_reason` จำเป็นเมื่อ rejected (รวมกรณียืนยันตัวตนไม่ผ่าน — AC-P15) |
+| completed_at / result_summary | วันเวลา/ข้อความยาว | เงื่อนไข | | ผลการดำเนินการ ระบุส่วนที่ปฏิเสธเพราะระเบียบเก็บถาวร |
+| fulfilment_outcome | ค่าจากรายการ | เงื่อนไข | | `full, partial` จำเป็นเมื่อ status = `completed` (partial = ปฏิเสธบางส่วน เช่น ทรานสคริปต์ — AC-P14 ข้อ 3) |
 | submitted_at | วันเวลา | ใช่ | | |
 
 - **ความสัมพันธ์:** หลาย → 1 USER; ห้ามลบก่อนสิ้นนโยบาย
+- **Integrity:** คำร้องที่ตอบรับสำเร็จแล้วต้องถูกบันทึกถาวรก่อนตอบรับ ไม่สูญหายแม้รับพร้อมกันหลายรายการ (AC-P15); ผู้ร้องเห็นเฉพาะคำร้องของตน (AC-P21)
 - **วงจรชีวิต:** submitted → under_review → approved/rejected → completed; ทุกการเปลี่ยนสถานะบันทึก audit
-- **Operation:** เขียน: submit-data-subject-request, decide-data-subject-request, fulfil-data-subject-request, run-retention-sweep / อ่าน: list-my-data-subject-requests, list-data-subject-requests
+- **Operation:** เขียน: submit-data-subject-request, decide-data-subject-request, fulfil-data-subject-request, run-retention-sweep / อ่าน: list-my-data-subject-requests, list-data-subject-requests, fulfil-data-subject-request
 
 ### 4.22 AUDIT_LOG_ENTRY
-- **วัตถุประสงค์/ที่มา:** หลักฐานเหตุการณ์สำคัญ immutable — P-US1, P-US5, P-BR audit
+- **วัตถุประสงค์/ที่มา:** หลักฐานเหตุการณ์สำคัญ immutable / tamper-evident — F-P1..F-P11, AC-P1..AC-P11, TC-P1..TC-P24, P-US1, P-US5
 - **เจ้าของ / ความอ่อนไหว:** ผู้ตรวจสอบ — อาจมีค่าก่อน-หลังของข้อมูลอ่อนไหว จำกัดการอ่าน; อยู่ในที่เก็บแยก
 
 | คอลัมน์ | ชนิด | จำเป็น? | Key | คำอธิบาย/กฎ |
 |---|---|---|---|---|
 | entry_id | ตัวระบุ (ID) | ใช่ | PK | |
 | actor_user_id | ตัวระบุ (ID) | ไม่ | อ้างอิง | ไม่บังคับ referential (ว่างสำหรับระบบ/ล็อกอินล้มเหลวที่ไม่รู้ตัวตน) |
-| actor | ข้อความ | ใช่ | | ผู้กระทำ (ตัวตน/ระบบ) |
+| actor | ข้อความ | ใช่ | | ไม่ว่างเสมอ: ผู้ใช้ = ตัวตน, งานอัตโนมัติ = `system`, ไม่พบตัวตน = ตัวอ้างอิงที่ใช้พยายามหรือ `unknown` (AC-P1, AC-P7) |
 | action | ค่าจากรายการ | ใช่ | | ดูหัวข้อ 5 |
 | occurred_at | วันเวลา | ใช่ | | |
-| target | ข้อความ | ใช่ | | ทรัพยากร/เป้าหมาย |
+| target | ข้อความ | ใช่ | | ทรัพยากร/เป้าหมาย ระบุนักศึกษาเจ้าของข้อมูลเมื่อเกี่ยวข้อง (AC-P3) ห้ามใส่เนื้อหาข้อความแชทเต็ม |
 | result | ค่าจากรายการ | ใช่ | | `success, failure` |
-| before_value / after_value | โครงสร้างซ้อน | ไม่ | | ค่าก่อน-หลัง (เกรด สิทธิ์ ค่าเกณฑ์) |
+| failure_reason | ข้อความ | เงื่อนไข | | จำเป็นเมื่อ result = failure ห้ามมีข้อมูลส่วนบุคคลเกินจำเป็น |
+| before_value / after_value | โครงสร้างซ้อน | ไม่ | | ค่าก่อน-หลัง (เกรด สิทธิ์ role ค่าเกณฑ์); สร้าง: ก่อน = ว่าง, ลบ: หลัง = ว่าง |
+| integrity_marker | ข้อความ | ใช่ | | ตัวบ่งชี้ความสมบูรณ์ของรายการ ผูกกับเนื้อหาและรายการก่อนหน้า |
+| previous_marker | ข้อความ | ไม่ | | marker ของรายการก่อนหน้า (ว่างเฉพาะรายการแรกของสายที่เหลืออยู่) |
 | retention_policy_id | ตัวระบุ (ID) | ใช่ | FK | นโยบาย audit log (1 ปี configurable) |
 
 - **ความสัมพันธ์:** หลาย → USER แบบอ้างอิงอย่างเดียว; หลาย → 1 RETENTION_POLICY
-- **Integrity:** เพิ่มต่อท้ายอย่างเดียว ไม่มี operation แก้/ลบ ยกเว้น purge ตามอายุ; ลบ USER ไม่ลบแถว audit
-- **วงจรชีวิต:** สร้างโดย record-audit-event; เก็บ 1 ปี (ค่าที่ตั้งได้) แล้ว purge-expired-audit-log-entries
-- **Operation:** เขียน: record-audit-event (เรียกจากทุก operation ที่กำหนด), purge-expired-audit-log-entries / อ่าน: search-audit-log
+- **Integrity:** เพิ่มต่อท้ายอย่างเดียว ไม่มี operation แก้/ลบ ยกเว้น purge ตามอายุ; ลบ USER ไม่ลบแถว audit; การดัดแปลงนอกช่องทางปกติ (แก้/ลบ/แทรกแถว) ตรวจพบได้จากความไม่ต่อเนื่องหรือไม่ตรงของ marker ด้วย verify-audit-log-integrity; คำขอแก้/ลบที่มาถึงบริการ audit ถูกปฏิเสธและบันทึก `audit_tamper_attempt` (Q12)
+- **วงจรชีวิต:** สร้างโดย record-audit-event; เก็บ 1 ปี (ค่าที่ตั้งได้) แล้ว purge-expired-audit-log-entries (อายุเกินระยะจึงลบ ครบพอดียังคง); หลัง purge การตรวจความสมบูรณ์เริ่มจากรายการเก่าสุดที่เหลือ
+- **Operation:** เขียน: record-audit-event (เรียกจากทุก operation ที่กำหนด), purge-expired-audit-log-entries / อ่าน: search-audit-log, get-audit-log-entry, verify-audit-log-integrity
 
 ### 4.23 RETENTION_POLICY
-- **วัตถุประสงค์/ที่มา:** กฎระยะเวลาเก็บต่อประเภทข้อมูล — P-BR retention, P-BR audit
+- **วัตถุประสงค์/ที่มา:** กฎระยะเวลาเก็บต่อประเภทข้อมูล — F-P11, F-P17, AC-P11, AC-P16, TC-P23, TC-P24, TC-P38, TC-P39, P-BR retention
 - **เจ้าของ / ความอ่อนไหว:** สถาบัน — ไม่ใช่ข้อมูลส่วนบุคคล
 
 | คอลัมน์ | ชนิด | จำเป็น? | Key | คำอธิบาย/กฎ |
@@ -773,7 +799,8 @@ erDiagram
 | updated_by / updated_at | FK/วันเวลา | ใช่ | | |
 
 - **ความสัมพันธ์:** 1 → หลาย ACADEMIC_RECORD, AUDIT_LOG_ENTRY; ตารางอื่นที่มีข้อมูลส่วนบุคคลของนักศึกษาถูกกำกับด้วยนโยบาย `student_personal_data` ผ่านการแมปในหัวข้อ 6 (ไม่เพิ่ม FK)
-- **วงจรชีวิต:** แก้ค่าได้ (audit `config_change`); ค่าที่เปลี่ยนมีผลกับรอบ sweep ถัดไป
+- **Integrity (กฎขอบเขต):** ข้อมูลที่อายุ ≤ ระยะเวลานโยบาย (ครบพอดี) ยังคงอยู่; เกินระยะจึงถูกลบ/ทำให้ไม่ระบุตัวตน
+- **วงจรชีวิต:** แก้ค่าได้ (audit `config_change`); ค่าที่เปลี่ยนมีผลกับรอบ sweep/purge ถัดไป
 - **Operation:** เขียน: update-retention-policy / อ่าน: list-retention-policies, import-academic-records, record-audit-event, run-retention-sweep, purge-expired-audit-log-entries
 
 ## 5. ค่าอ้างอิงและรายการ enum
@@ -789,21 +816,23 @@ erDiagram
 | alert status | open, superseded, resolved | ALERT.status | AC-R1 |
 | trigger source | data_change, scheduled | ALERT.trigger_source | architecture Q3 |
 | recommendation status | current, superseded | RECOMMENDATION.status | F-R4 |
-| notification type | risk_alert, weekly_summary_ready, mentor_decision, message_status, admin_pending_work, data_subject_request_update | NOTIFICATION.notification_type | F-R3, F-C10, F-C11 |
+| notification type | risk_alert, weekly_summary_ready, mentor_decision, message_status, admin_pending_work, data_subject_request_update | NOTIFICATION.notification_type | F-R3, F-C10, F-C11, F-P15, F-P16 |
 | notification channel | in_app | NOTIFICATION.channel | R-BR4 (เพิ่มได้ภายหลัง) |
 | delivery status | pending, delivered, failed | NOTIFICATION.delivery_status | |
 | mentor criteria type | course_grade_at_least, cumulative_gpa_at_least | MENTOR_CRITERIA.criteria_type | C-BR1 |
 | nomination status | pending, approved, rejected | MENTOR_NOMINATION.status | C-BR1, AC-C2 |
 | message status | pending, published, rejected, withdrawn | MESSAGE.status | C-BR4, AC-C4..C6 |
+| message withdrawn reason | consent_withdrawn, retention, dsr_erase, dsr_third_party | MESSAGE.withdrawn_reason | AC-P13, AC-P20 |
 | moderation decision | approved, rejected | MODERATION_DECISION.decision | AC-C6 |
-| privacy purpose | academic_service, chat_participation | PRIVACY_NOTICE.purpose, CONSENT_RECORD.purpose | P-BR PDPA |
-| legal basis | educational_mission, consent | PRIVACY_NOTICE.legal_basis | P-BR PDPA |
-| request type | access, rectify, erase, object, portability | DATA_SUBJECT_REQUEST.request_type | P-BR PDPA |
-| request status | submitted, under_review, approved, rejected, completed | DATA_SUBJECT_REQUEST.status | P-US3 |
-| audit action | sign_in, sign_in_failed, sign_out, grade_create, grade_update, grade_delete, student_data_access, role_change, config_change, data_import, data_export, message_moderation, notice_publish, consent_change, dsr_submit, dsr_decide, dsr_fulfil, retention_sweep, audit_log_read, audit_purge | AUDIT_LOG_ENTRY.action | P-BR audit (+ assumption) |
-| audit result | success, failure | AUDIT_LOG_ENTRY.result | P-BR audit |
-| retention category | student_personal_data, permanent_academic_record, audit_log | RETENTION_POLICY.data_category | P-BR retention |
-| retention disposal | delete, anonymize, none | RETENTION_POLICY.disposal_action | P-BR retention |
+| privacy purpose | academic_service, chat_participation | PRIVACY_NOTICE.purpose, CONSENT_RECORD.purpose | F-P12, F-P14 |
+| legal basis | educational_mission, consent | PRIVACY_NOTICE.legal_basis | F-P12 |
+| request type | access, rectify, erase, object, portability | DATA_SUBJECT_REQUEST.request_type | F-P15 |
+| request status | submitted, under_review, approved, rejected, completed | DATA_SUBJECT_REQUEST.status | F-P15, F-P16 |
+| fulfilment outcome | full, partial | DATA_SUBJECT_REQUEST.fulfilment_outcome | AC-P6, AC-P14 |
+| audit action | sign_in, sign_in_failed, sign_out, grade_create, grade_update, grade_delete, student_data_access, chat_content_access, role_change, config_change, data_import, data_export, message_moderation, notice_publish, consent_change, dsr_submit, dsr_decide, dsr_fulfil, retention_sweep, audit_log_read, audit_integrity_check, audit_tamper_attempt, audit_purge | AUDIT_LOG_ENTRY.action | F-P1..F-P11 (+ assumption) |
+| audit result | success, failure | AUDIT_LOG_ENTRY.result | F-P7 |
+| retention category | student_personal_data, permanent_academic_record, audit_log | RETENTION_POLICY.data_category | F-P11, F-P17 |
+| retention disposal | delete, anonymize, none | RETENTION_POLICY.disposal_action | F-P17 |
 | user category | student (ขยายได้) | USER_CATEGORY.category_code | F-R7 |
 
 ## 6. ข้อมูลส่วนบุคคลและนโยบายข้อมูล
@@ -816,18 +845,18 @@ erDiagram
 | ALERT, ALERT_CONDITION, RECOMMENDATION, WEEKLY_SUMMARY | อ่อนไหวสูง | ภารกิจทางการศึกษา | student_personal_data | ลบ |
 | NOTIFICATION | ข้อมูลส่วนบุคคล | ภารกิจทางการศึกษา | student_personal_data | ลบ |
 | MENTOR_NOMINATION, MENTOR_GRANT | ข้อมูลส่วนบุคคล | ภารกิจทางการศึกษา | student_personal_data | ลบ |
-| MESSAGE, MODERATION_DECISION | อาจมีข้อมูลของผู้อื่น | consent (การเข้าร่วมแชท) | student_personal_data | ตาม Q4 (ลบเนื้อหาที่ยังไม่เผยแพร่ ทำให้ไม่ระบุผู้เขียนข้อความที่เผยแพร่) |
+| MESSAGE, MODERATION_DECISION | อาจมีข้อมูลของผู้อื่น | consent (การเข้าร่วมแชท) | student_personal_data | ตาม Q4 (ลบเนื้อหาที่ยังไม่เผยแพร่ ทำให้ไม่ระบุผู้เขียนข้อความที่เผยแพร่) และ Q10 (ถอนเนื้อหาข้อความที่อ้างถึงผู้ร้อง) |
 | CONSENT_RECORD | ข้อมูลส่วนบุคคล | หน้าที่ตามกฎหมาย (หลักฐาน consent) | student_personal_data | ทำให้ไม่ระบุตัวตน |
 | DATA_SUBJECT_REQUEST | ข้อมูลส่วนบุคคล | หน้าที่ตามกฎหมาย | student_personal_data | ทำให้ไม่ระบุตัวตน |
 | AUDIT_LOG_ENTRY | อาจมีค่าก่อน-หลังอ่อนไหว | หน้าที่ตามกฎหมาย | audit_log 1 ปี (configurable) | purge ตามอายุ |
 | RISK_RULE, MENTOR_CRITERIA, RETENTION_POLICY, PRIVACY_NOTICE, TERM, COURSE, CHAT_ROOM, USER_CATEGORY | ไม่ใช่ข้อมูลส่วนบุคคล | — | ไม่หมดอายุ | — |
 
 - **สิทธิทั้ง 6:** เข้าถึง/แก้ไข/ลบ/คัดค้าน/โอนย้าย → DATA_SUBJECT_REQUEST; ถอนความยินยอม → CONSENT_RECORD (มีผลทันที)
-- **ความปลอดภัย:** เข้ารหัสทั้งขณะจัดเก็บและส่งผ่าน (ไม่ระบุวิธี); least privilege ตามหัวข้อ 7; MFA บัญชีแอดมิน (ที่เก็บผลยังไม่ตัดสิน)
-- **Audit:** การเข้าถึงข้อมูลนักศึกษาโดยแอดมิน, แก้เกรด, เปลี่ยนสิทธิ์, คำร้อง PDPA และการอ่าน log ต้องมีแถว AUDIT_LOG_ENTRY
-- **Data Controller/Processor:** สถาบันเป็น Controller, Grade Runway เป็น Processor
-- **เหตุข้อมูลรั่วไหล 72 ชม.:** เป็นกระบวนการระดับสถาบัน ไม่มีตาราง
-- **เนื้อหาแชท:** อยู่ภายใต้หลักการเดียวกัน (ข้อความอ้างถึงผู้อื่น)
+- **ความปลอดภัย (F-P18, AC-P17):** เข้ารหัสทั้งขณะจัดเก็บและส่งผ่าน (ไม่ระบุวิธี); least privilege ตามหัวข้อ 7; MFA บัญชีแอดมิน/ผู้ตรวจสอบ (ที่เก็บผลยังไม่ตัดสิน)
+- **Audit:** การเข้าถึงข้อมูลนักศึกษาโดยผู้ที่ไม่ใช่เจ้าของข้อมูล (กฎไม่ผูกบทบาท — Q14), แก้เกรด, เปลี่ยนสิทธิ์/บทบาท, ส่งออกข้อมูล, คำร้อง PDPA และการอ่าน log ต้องมีแถว AUDIT_LOG_ENTRY; การเข้าถึงข้อมูลของตนเองไม่ถือเป็นการเข้าถึงของผู้อื่น (AC-P3)
+- **Data Controller/Processor (F-P20):** สถาบันเป็น Controller, Grade Runway เป็น Processor — ระดับนโยบาย ขอบเขต Processor = operation ที่เปิดไว้ในระบบ ไม่มีตารางรองรับ
+- **เหตุข้อมูลรั่วไหล 72 ชม. (F-P19, AC-P18):** เป็นกระบวนการของสถาบันนอกระบบ ไม่มีตาราง/บันทึกใน Grade Runway (Q13)
+- **เนื้อหาแชท (F-P21, AC-P20):** อยู่ภายใต้หลักการเดียวกัน (ข้อความอ้างถึงผู้อื่น) ผ่าน `referenced_message_ids` และการ audit การเข้าถึงเนื้อหาแชท
 
 ## 7. ข้อกำหนดด้านการเข้าถึงข้อมูลเชิงแนวคิด
 
@@ -835,44 +864,47 @@ R = อ่าน, W = เขียน, — = ไม่ได้, "เจ้า�
 
 | กลุ่มข้อมูล | ผู้เรียน (student) | mentor (ผู้เรียนที่มี grant) | admin | auditor | data_staff |
 |---|---|---|---|---|---|
-| USER | R เจ้าของ | R เจ้าของ | R | — | R (ผ่าน op) |
+| USER | R เจ้าของ | R เจ้าของ | R; W เฉพาะ `role` (ผ่าน change-user-role, ห้ามตนเอง) | — | R (ผ่าน op) |
 | ENROLLMENT, COURSE, TERM | R เจ้าของ | R เจ้าของ | R | — | W (นำเข้า) |
 | ACADEMIC_RECORD | R เจ้าของ (ผ่านคำแนะนำ/สรุป) | เหมือนผู้เรียน | R เฉพาะค่าที่แสดงใน nomination (บันทึก audit) | — | W (นำเข้า/แก้ไข) |
 | ALERT, RECOMMENDATION, WEEKLY_SUMMARY, NOTIFICATION | R เจ้าของ | R เจ้าของ | NOTIFICATION ของตน | — | — |
 | RISK_RULE, MENTOR_CRITERIA, RETENTION_POLICY | — | — | R/W | — | — |
 | MENTOR_NOMINATION, MENTOR_GRANT | R สถานะของตน | R สถานะของตน | R/W | — | — |
 | CHAT_ROOM / MESSAGE (published) | R ห้องที่ลงทะเบียนภาคปัจจุบัน + consent | R/W | R | — | — |
-| MESSAGE (pending/rejected) | R ของตน | R ของตน | R/W (คิว) | — | — |
+| MESSAGE (pending/rejected) | R ของตน | R ของตน | R/W (คิว; บันทึก audit `chat_content_access`) | — | — |
 | PRIVACY_NOTICE | R | R | R/W | — | — |
 | CONSENT_RECORD | R/W เจ้าของ | เหมือนผู้เรียน | — | — | — |
-| DATA_SUBJECT_REQUEST | R/W เจ้าของ | เหมือนผู้เรียน | R/W (ตัดสิน/ดำเนินการ) | — | — |
-| AUDIT_LOG_ENTRY | — | — | — (แก้/ลบไม่ได้) | R (ถูกบันทึกการอ่าน) | — |
+| DATA_SUBJECT_REQUEST | R/W เจ้าของ | เหมือนผู้เรียน | R/W (ตัดสิน/ดำเนินการ; ผู้ที่ไม่ใช่ admin เปิดคิวไม่ได้) | — | — |
+| AUDIT_LOG_ENTRY | — | — | — (แก้/ลบ/อ่านไม่ได้; ความพยายามถูกบันทึก) | R (ผ่าน search/get/verify; ทุกครั้งถูกบันทึก) | — |
 
 ## 8. Traceability
 
 | ตาราง | feature | user story / business rule | AC / test spec |
 |---|---|---|---|
-| USER | F-R3, F-C2 | P-BR security, architecture Q6 | AC-C3 |
+| USER | F-R3, F-C2, F-P4, F-P18 | P-US1, P-BR security, architecture Q6 | AC-C3, AC-P4, AC-P17, TC-P9, TC-P41 |
 | USER_CATEGORY | F-R7 | R overview | AC-R5, TS-15 |
 | TERM | F-C2 | C-BR3 | AC-C3 |
 | COURSE | F-C1 | C-BR2 | AC-C3 |
 | ENROLLMENT | F-C2 | C-BR3 | AC-C3 |
-| ACADEMIC_RECORD | F-R1, F-C3 | R-US1, R-US2, R-BR1, C-US3 | AC-R1..R3, AC-C1, TS-01..TS-04, TS-09 |
+| ACADEMIC_RECORD | F-R1, F-C3, F-P2 | R-US1, R-US2, R-BR1, C-US3, P-US1 | AC-R1..R3, AC-C1, AC-P2, TS-01..TS-04, TS-09, TC-P4, TC-P5 |
 | RISK_RULE | F-R2, F-R6, F-R7 | R-US4, R-BR2 | AC-R4, AC-R5, TS-12, TS-13 |
 | ALERT, ALERT_CONDITION | F-R3 | R-US1, R-BR4 | AC-R1, AC-R4 edge, TS-05, TS-06, TS-14 |
 | RECOMMENDATION | F-R4 | R-US2, R-BR3 | AC-R2, TS-08, TS-09 |
 | WEEKLY_SUMMARY | F-R5 | R-US3, R-BR4 | AC-R3, TS-10, TS-11 |
-| NOTIFICATION | F-R3, F-C10, F-C11 | R-BR4, C-US4, C-US5 | AC-R1 edge, AC-C2, AC-C6, TS-07 |
+| NOTIFICATION | F-R3, F-C10, F-C11, F-P15, F-P16 | R-BR4, C-US4, C-US5, P-US3 | AC-R1 edge, AC-C2, AC-C6, AC-P14, TS-07, TC-P31 |
 | MENTOR_CRITERIA | F-C4 | C-BR1 | AC-C1 |
-| MENTOR_NOMINATION | F-C3, F-C5 | C-US3, C-US4, C-BR1 | AC-C1, AC-C2 |
-| MENTOR_GRANT | F-C6 | C-US1, C-US4 | AC-C2, AC-C4 |
+| MENTOR_NOMINATION | F-C3, F-C5, F-P3, F-P4 | C-US3, C-US4, C-BR1, P-US1 | AC-C1, AC-C2, AC-P3, AC-P4, TC-P6, TC-P8, TC-P9 |
+| MENTOR_GRANT | F-C6, F-P4 | C-US1, C-US4 | AC-C2, AC-C4, AC-P4 |
 | CHAT_ROOM | F-C1 | C-BR2 | AC-C3 |
-| MESSAGE | F-C7, F-C8, F-C10 | C-US1, C-US2, C-BR4 | AC-C4, AC-C5, AC-C6 |
+| MESSAGE | F-C7, F-C8, F-C10, F-P14, F-P21 | C-US1, C-US2, C-BR4, P-US2, P-US4 | AC-C4, AC-C5, AC-C6, AC-P13, AC-P20, TC-P29, TC-P30, TC-P48, TC-P49 |
 | MODERATION_DECISION | F-C9 | C-US5, C-BR4 | AC-C6 |
-| PRIVACY_NOTICE, CONSENT_RECORD | (ไม่มี features list) | P-US2, P-BR PDPA | — |
-| DATA_SUBJECT_REQUEST | — | P-US3, P-US4 | — |
-| AUDIT_LOG_ENTRY | — | P-US1, P-US5, P-BR audit | — |
-| RETENTION_POLICY | — | P-BR retention | — |
+| PRIVACY_NOTICE | F-P12, F-P13 | P-US2 | AC-P12, TC-P25, TC-P26 |
+| CONSENT_RECORD | F-P14 | P-US2 | AC-P13, TC-P27..TC-P30 |
+| DATA_SUBJECT_REQUEST | F-P5, F-P6, F-P15, F-P16, F-P21, F-P22 | P-US3, P-US4 | AC-P5, AC-P6, AC-P14, AC-P15, AC-P20, AC-P21, TC-P12, TC-P13, TC-P31..TC-P37, TC-P48, TC-P50 |
+| AUDIT_LOG_ENTRY | F-P1..F-P11 | P-US1, P-US5 | AC-P1..AC-P11, TC-P1..TC-P24 |
+| RETENTION_POLICY | F-P11, F-P17 | P-US1, P-US4, P-BR retention | AC-P11, AC-P16, TC-P23, TC-P24, TC-P38, TC-P39 |
+
+feature ของ spec 03 ที่ไม่มีตารางรองรับโดยตั้งใจ: F-P19 (breach, นอกระบบ), F-P20 (Controller/Processor, นโยบาย), F-P23..F-P26 (Won't have)
 
 ## 9. ข้อจำกัดจาก Requirement
 
@@ -893,12 +925,20 @@ R = อ่าน, W = เขียน, — = ไม่ได้, "เจ้า�
 | Q6 ผู้บันทึกผลคำร้อง PDPA | admin บันทึกผลแทนสถาบัน (ไม่เพิ่ม role) | ใช้ role และ MFA ที่มีอยู่ | 2026-10-08 |
 | Q7 ส่งมอบข้อมูลสิทธิเข้าถึง/โอนย้าย | ระบบรวบรวมชุดข้อมูลของผู้ร้องและส่งมอบ (กระทบ API เป็นหลัก ไม่เปลี่ยนโครงสร้างตาราง) | ตอบสิทธิภายในระบบและบันทึก `data_export` ได้ | 2026-10-08 |
 | Q8 รูปแบบนำเข้าข้อมูล | นำเข้าหลายรายการต่อครั้ง ผลรายแถว + operation แก้/ยกเลิกรายการเดี่ยว (upsert ตามคีย์ธรรมชาติ ใน ACADEMIC_RECORD) | เหมาะกับการนำเข้าทั้งภาคและตามรอย audit ก่อน-หลัง | 2026-10-08 |
+| Q9 การเปลี่ยนบทบาทผู้ใช้ (AC-P4, TC-P9) | เพิ่ม operation change-user-role ให้ admin (ห้ามเปลี่ยนตนเอง, audit `role_change` ก่อนยืนยัน); โครงสร้างตารางไม่เปลี่ยน | ตรง architecture Q6 (Grade Runway จัดการบทบาทเอง) และทดสอบ TC-P9 ได้ | 2026-10-08 |
+| Q10 ข้อความแชทที่ผู้อื่นเขียนแต่อ้างถึงผู้ร้อง (AC-P20, TC-P48) | เพิ่มคอลัมน์ `DATA_SUBJECT_REQUEST.referenced_message_ids` ไม่เพิ่มตาราง; ข้อความที่ถูกอ้างถึงถูกถอนเนื้อหา (`withdrawn`, `dsr_third_party`) | ไม่เกิด entity ใหม่ และผู้ร้องเห็นเฉพาะข้อความที่ตนเข้าถึงได้อยู่แล้ว | 2026-10-08 |
+| Q11 นิยามการ export (AC-P5, TC-P10/11) | การส่งมอบชุดข้อมูลตามคำร้อง access/portability เป็นช่องทาง export เดียวของเวอร์ชันนี้ ไม่มี operation ส่งออกอื่น (ไม่กระทบตาราง) | ไม่ขยายขอบเขตเกิน features list | 2026-10-08 |
+| Q12 ความพยายามแก้/ลบ audit log (AC-P8, TC-P16) | เป็นกติกาของบริการ audit: ไม่เปิด operation แก้/ลบ คำขอที่มาถึงบริการถูกปฏิเสธและบันทึก `audit_tamper_attempt`; เพิ่ม integrity marker ในแถว audit | ทำให้ immutable/tamper-evident เป็นจริงเชิงโครงสร้างโดยไม่เพิ่มพื้นผิวโจมตี | 2026-10-08 |
+| Q13 บันทึกเหตุข้อมูลรั่วไหล (AC-P18, TC-P43..45) | อยู่นอกระบบ เป็นเอกสารของสถาบัน ไม่เพิ่มตาราง | ตรง architecture และ F-P23 (Won't have) | 2026-10-08 |
+| Q14 บทบาทอาจารย์ (AC-P3, TC-P6) | ไม่เพิ่ม role `teacher`; กฎ audit การเข้าถึงข้อมูลนักศึกษาเขียนแบบไม่ผูกบทบาท (ผู้ที่ไม่ใช่เจ้าของข้อมูล) | ตรง architecture Q2 (admin ส่วนกลาง ขยายภายหลังได้) ไม่มี delta | 2026-10-08 |
+| Q15 การสร้างภาคใหม่ (D-06) | import-enrollments รับวันเริ่ม/สิ้นสุดภาคต่อแถวและสร้าง TERM (`is_current` = เท็จ) เมื่อยังไม่มี; ภาคเดิมห้ามถูกแก้ทับ; โครงสร้างตารางไม่เปลี่ยน | ตรงที่เอกสารนี้ระบุว่า TERM สร้างจากการนำเข้า ไม่เพิ่ม operation | 2026-10-08 |
+| D-05 ชุดข้อมูลสิทธิเข้าถึง/โอนย้าย | แก้ในเอกสารต้นทางให้รายการอ่านครอบคลุมทุกตารางข้อมูลส่วนบุคคลตามหัวข้อ 6 (ไม่รวม AUDIT_LOG_ENTRY) | ตรงสิทธิตามกฎหมาย และเลิกเป็น delta ของ detailed design | 2026-10-08 |
 
 ## 11. คำถามค้างและสมมติฐาน
 
-ไม่มีคำถามค้างที่รอผู้ใช้ตอบ สมมติฐานที่ยังไม่ได้รับการยืนยัน:
+ไม่มีคำถามค้างที่รอผู้ใช้ตอบ (OQ-1..OQ-7 ตอบแล้ว — ดู Q9-Q15 ในหัวข้อ 10) สมมติฐานที่ยังไม่ได้รับการยืนยัน:
 
-- _(สมมติฐาน)_ role มี 4 ค่า 1 บัญชี 1 role; mentor คำนวณจาก MENTOR_GRANT ในภาคปัจจุบัน (architecture §10)
+- _(สมมติฐาน)_ role มี 4 ค่า 1 บัญชี 1 role; mentor คำนวณจาก MENTOR_GRANT ในภาคปัจจุบัน; auditor เป็นคนละบัญชีกับ admin; "เจ้าหน้าที่ PDPA" = admin ตาม Q6 (architecture §10)
 - _(ต้องการข้อมูลเพิ่มเติมจากผู้ใช้)_ ค่าตัวเลขของเกณฑ์ (ในเอกสารเป็นตัวอย่างจาก AC เท่านั้น: GPA < 2.00, เข้าเรียน < 80%, ไม่ส่งงาน ≥ 3, คะแนนลดลงติดกัน ≥ 2, ข้อมูลย้อนหลังขั้นต่ำ 2 ช่วงเวลา) และเกณฑ์เสนอชื่อ mentor
 - _(สมมติฐาน)_ ACADEMIC_RECORD เป็นตารางเดียว GPA สะสมนำเข้าเป็นค่า (`course_id` ว่าง); การ "ลบ" เกรดเป็นการยกเลิกแถว (`voided_at`) ไม่ลบจริง
 - _(ต้องการข้อมูลเพิ่มเติมจากสถาบัน)_ `course_grade` และ `cumulative_gpa` อยู่ในนโยบายเก็บถาวร (ทรานสคริปต์) ส่วนข้อมูลอื่นผูกนโยบาย "สถานภาพ +5 ปี"; เมื่อมีข้อมูลถาวร USER คงเฉพาะตัวระบุขั้นต่ำ (`minimized`)
@@ -906,12 +946,15 @@ R = อ่าน, W = เขียน, — = ไม่ได้, "เจ้า�
 - _(สมมติฐาน)_ แชทเป็นรายการเรียงตามเวลา ไม่มี reply/thread; แสดง `display_name`; badge ใช้ `posted_as_mentor`; ทุกข้อความ pre-moderation; การปฏิเสธ nomination/ข้อความต้องมีเหตุผลและแสดงให้ผู้เกี่ยวข้อง
 - _(สมมติฐาน)_ กันแจ้งเตือนซ้ำด้วย `condition_fingerprint` (ชุดเงื่อนไขเปลี่ยน → supersede แล้วสร้างใหม่; ไม่เข้าเงื่อนไข → resolved); แจ้งงานค้างแอดมินแบบรวม (`dedupe_key`)
 - _(สมมติฐาน)_ สรุปรายสัปดาห์ 1 รายการต่อผู้ใช้ต่อสัปดาห์ เทียบสัปดาห์ก่อนอย่างน้อย 1 ตัวแปร; คำแนะนำไม่สร้างเมื่อข้อมูลย้อนหลังต่ำกว่าขั้นต่ำ
-- _(สมมติฐาน)_ consent บันทึกแบบเหตุการณ์ (append-only) สถานะปัจจุบัน = แถวล่าสุดต่อวัตถุประสงค์; ฐานกฎหมาย ผลการเรียน/ทะเบียน = ภารกิจทางการศึกษา, เข้าห้องแชท = consent
-- _(สมมติฐาน)_ audit บันทึกเพิ่มจาก spec 03: เปลี่ยนเกณฑ์/นโยบาย/ภาค, นำเข้าข้อมูล, ผลตรวจข้อความ, เผยแพร่ notice, purge
-- _(สมมติฐาน)_ ช่องทางแจ้งเตือนมีเฉพาะ in-app (`channel` เป็นจุดเสียบ) ไม่เพิ่มตารางช่องทาง
-- _(ต้องการข้อมูลเพิ่มเติมจากผู้ใช้)_ MFA ของบัญชีแอดมินอยู่ฝั่งสถาบันหรือใน Grade Runway (architecture §10) เอกสารนี้ไม่ออกแบบข้อมูล MFA
-- _(ยังไม่ระบุใน spec)_ การเพิ่ม/ถอนวิชาระหว่างภาค, SLA ของ moderation
-- _(สมมติฐาน)_ spec 03 ไม่มี features list/journey/AC ใช้ User Stories + Business Rules; ปรับเมื่อมีเอกสารเหล่านั้น
+- _(สมมติฐาน)_ consent บันทึกแบบเหตุการณ์ (append-only) สถานะปัจจุบัน = แถวล่าสุดต่อวัตถุประสงค์; ฐานกฎหมาย ผลการเรียน/ทะเบียน = ภารกิจทางการศึกษา, เข้าห้องแชท = consent; ไม่เก็บหลักฐาน "การรับทราบ notice" ของฐานภารกิจการศึกษา (แสดงทุกครั้งที่เข้าฟีเจอร์ที่เก็บข้อมูล)
+- _(สมมติฐาน)_ ผลการถอน consent ต่อข้อความเดิม (AC-P13 ข้อ 4 / TC-P30 ที่ spec ยังไม่ระบุ) ใช้ Q4 เป็นคำตอบ
+- _(สมมติฐาน)_ audit บันทึกเพิ่มจาก spec 03: เปลี่ยนเกณฑ์/นโยบาย/ภาค, นำเข้าข้อมูล, ผลตรวจข้อความ, เผยแพร่ notice, purge, การเข้าถึงเนื้อหาแชท (`chat_content_access`), ตรวจความสมบูรณ์ (`audit_integrity_check`); `chat_content_access` และ `student_data_access` ที่เกิดจากการเปิดคิวคำร้อง ไม่อยู่ในกลุ่มสำคัญของ Q5 (ทำต่อและส่ง log ซ้ำ) _(ควรให้ผู้ใช้ยืนยัน)_
+- _(สมมติฐาน)_ actor ของ audit ไม่ว่างเสมอ: งานอัตโนมัติ = `system`, ไม่พบตัวตน = ตัวอ้างอิงที่ใช้พยายามหรือ `unknown`; ค่าก่อน-หลังใน audit ไม่เก็บเนื้อหาข้อความแชทเต็ม (เก็บเฉพาะตัวอ้างอิง); ผู้ตรวจสอบไม่มีสิทธิ์อ่านเนื้อหาแชทโดยตรง
+- _(สมมติฐาน)_ integrity marker เชิงแนวคิด: แต่ละแถวผูกกับแถวก่อนหน้า หลัง purge ตรวจจากแถวเก่าสุดที่เหลือ
+- _(สมมติฐาน)_ ชุดข้อมูลสิทธิเข้าถึง/โอนย้ายไม่รวมแถว AUDIT_LOG_ENTRY (เป็นหลักฐานตามกฎหมาย ไม่ลบ)
+- _(ต้องการข้อมูลเพิ่มเติมจากผู้ใช้)_ MFA ของบัญชีแอดมิน/ผู้ตรวจสอบอยู่ฝั่งสถาบันหรือใน Grade Runway (architecture §10) เอกสารนี้ไม่ออกแบบข้อมูล MFA
+- _(ต้องการข้อมูลเพิ่มเติมจากผู้ใช้)_ เกณฑ์ "ข้อมูลชุดใหญ่" ของการ export (AC-P5) — ปัจจุบันถือว่าการส่งมอบตามคำร้องทุกครั้งเป็น export
+- _(ยังไม่ระบุใน spec)_ การเพิ่ม/ถอนวิชาระหว่างภาค, SLA ของ moderation และ SLA ของคำร้อง
 
 ---
 ย้อนกลับ: [[index|02-technical]] | ที่เกี่ยวข้อง: [[api-spec|API Spec]]
