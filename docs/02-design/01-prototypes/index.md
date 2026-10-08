@@ -18,4 +18,8 @@
 - [[20260827-04-user-journey-mentor-high-grade-peer-review-chat|User Journey: นักศึกษาเกรดสูง/ผู้แนะนำ — ได้รับสิทธิ์และแบ่งปันคำแนะนำการเรียน]]
 - [[20260827-05-user-journey-mentee-high-grade-peer-review-chat|User Journey: นักศึกษาทั่วไป — ขอคำแนะนำแนวทางการเรียนจากรุ่นพี่/เพื่อนเกรดสูง]]
 - [[20260827-06-user-journey-admin-high-grade-peer-review-chat|User Journey: ผู้ดูแลระบบ — ควบคุมคุณภาพผู้แนะนำและเนื้อหาในห้องแชท]]
+- [[20261007-01-features-list-logging-pdpa-compliance|Features List: การเก็บ Log กิจกรรมและการปฏิบัติตาม PDPA]]
+- [[20261007-02-user-journey-auditor-logging-pdpa-compliance|User Journey: ผู้ดูแลระบบระดับสูง/ผู้ตรวจสอบ — สืบสวนเหตุการณ์ผิดปกติจาก log กิจกรรม]]
+- [[20261007-03-user-journey-data-subject-logging-pdpa-compliance|User Journey: เจ้าของข้อมูลส่วนบุคคล — รับรู้ ให้ความยินยอม และใช้สิทธิตาม PDPA]]
+- [[20261007-04-user-journey-data-controller-logging-pdpa-compliance|User Journey: เจ้าหน้าที่คุ้มครองข้อมูลของสถาบัน (Data Controller) — จัดการคำร้องและเหตุข้อมูลรั่วไหล]]
 - [[prototypes/index|Prototypes: รายการหน้าจอ/wireframe แยกตามหัวข้อ]]

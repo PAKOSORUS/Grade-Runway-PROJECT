@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grade Runway — Personalized Learning Reminder (Interactive Prototype v1)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--color-primary-900:#3D0A0D;--color-primary-700:#6E1116;--color-primary-600:#8B1A1F;--color-primary-500:#A6222A;--color-primary-100:#F3D9DA;--color-primary-50:#FBEFEF;
+--color-accent-gold-700:#8A6A16;--color-accent-gold-500:#C9A227;--color-accent-gold-300:#E4C877;--color-accent-gold-100:#F8ECC7;
+--color-neutral-900:#1F1B1B;--color-neutral-700:#4A4444;--color-neutral-500:#8A8282;--color-neutral-300:#D9D3D3;--color-neutral-100:#F1EDED;--color-neutral-50:#FAF8F8;--color-neutral-0:#FFFFFF;
+--color-success-500:#2E7D46;--color-warning-500:#C77B12;--color-danger-500:#B3261E;--color-info-500:#2F6FA6;
+--font-family-base:"Noto Sans Thai","Sarabun",-apple-system,"Segoe UI",Roboto,sans-serif;
+--font-size-display:32px;--font-size-h1:24px;--font-size-h2:20px;--font-size-h3:16px;--font-size-body:14px;--font-size-body-lg:16px;--font-size-caption:12px;--font-size-overline:11px;
+--line-height-body:1.5;--line-height-heading:1.3;
+--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:64px;
+--radius-sm:4px;--radius-md:8px;--radius-lg:16px;--radius-full:9999px;
+--shadow-sm:0 1px 2px rgba(31,27,27,0.08);--shadow-md:0 4px 12px rgba(31,27,27,0.12);--shadow-lg:0 12px 32px rgba(31,27,27,0.16);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font-family-base);font-size:var(--font-size-body);line-height:var(--line-height-body);color:var(--color-neutral-900);background:var(--color-neutral-100);font-variant-numeric:tabular-nums}
+h1,h2,h3,p{margin:0}
+h1{font-size:var(--font-size-h1);line-height:var(--line-height-heading)}
+h2{font-size:var(--font-size-h2);line-height:var(--line-height-heading);font-weight:600}
+h3{font-size:var(--font-size-h3);font-weight:600;line-height:var(--line-height-heading)}
+button,input,select{font-family:inherit;font-size:inherit}
+:focus-visible{outline:3px solid var(--color-accent-gold-500);outline-offset:2px}
+.demo-bar{background:var(--color-neutral-900);color:#fff;padding:var(--space-2) var(--space-4);display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;font-size:var(--font-size-caption)}
+.demo-bar .grow{flex:1}
+.seg{display:inline-flex;border:1px solid var(--color-neutral-300);border-radius:var(--radius-full);overflow:hidden}
+.seg button{background:transparent;color:#fff;border:0;padding:0 var(--space-4);min-height:44px;cursor:pointer;font-weight:600}
+.seg button[aria-pressed=true]{background:var(--color-accent-gold-500);color:var(--color-neutral-900)}
+.demo-bar select{min-height:44px;border-radius:var(--radius-sm);padding:0 var(--space-2)}
+.demo-bar label{display:flex;gap:var(--space-2);align-items:center}
+.stage{padding:var(--space-4);display:flex;justify-content:center}
+.device{background:var(--color-neutral-50);width:100%;max-width:420px;min-height:640px;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.device.admin{max-width:1100px}
+@media(max-width:639px){.stage{padding:0}.device{border-radius:0;max-width:none;min-height:calc(100vh - 100px)}}
+.topbar{background:var(--color-primary-700);color:#fff;padding:var(--space-3) var(--space-4);display:flex;align-items:center;gap:var(--space-3)}
+.topbar .brand{font-weight:700;font-size:var(--font-size-h3);flex:1}
+.topbar .who{font-size:var(--font-size-caption);display:flex;gap:var(--space-2);align-items:center}
+.avatar{width:32px;height:32px;border-radius:var(--radius-full);background:var(--color-accent-gold-500);color:var(--color-neutral-900);display:grid;place-items:center;font-weight:700}
+.topnav{display:none;background:var(--color-primary-700);padding:0 var(--space-4)}
+.topnav button{background:none;border:0;color:#fff;min-height:44px;padding:0 var(--space-4);cursor:pointer;border-bottom:2px solid transparent}
+.topnav button[aria-current=page]{border-bottom-color:var(--color-accent-gold-500);font-weight:600}
+.content{flex:1;padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-4);padding-bottom:88px}
+.device.admin .content{padding-bottom:var(--space-5)}
+.tabbar{position:sticky;bottom:0;background:var(--color-neutral-0);border-top:1px solid var(--color-neutral-300);display:flex;margin-top:auto}
+.tabbar button{flex:1;min-height:56px;background:none;border:0;cursor:pointer;color:var(--color-neutral-700);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:var(--font-size-caption);border-top:2px solid transparent;position:relative}
+.tabbar button[aria-current=page]{color:var(--color-primary-600);font-weight:600;border-top-color:var(--color-accent-gold-500)}
+.tabbar .ico{font-size:18px}
+.dot{position:absolute;top:6px;right:calc(50% - 22px);min-width:18px;height:18px;border-radius:var(--radius-full);background:var(--color-primary-600);color:#fff;font-size:11px;display:grid;place-items:center;padding:0 4px}
+.card{background:var(--color-neutral-0);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-2)}
+.card.risk-success{border-left:4px solid var(--color-success-500)}
+.card.risk-warning{border-left:4px solid var(--color-warning-500)}
+.card.risk-danger{border-left:4px solid var(--color-danger-500)}
+.card.clickable{cursor:pointer;text-align:left;border-top:0;border-right:0;border-bottom:0;font:inherit;color:inherit;width:100%}
+.card.clickable:hover{box-shadow:var(--shadow-md)}
+.row{display:flex;gap:var(--space-2);align-items:center;flex-wrap:wrap}
+.row.between{justify-content:space-between}
+.muted{color:var(--color-neutral-700)}
+.caption{font-size:var(--font-size-caption);color:var(--color-neutral-500)}
+.lg{font-size:var(--font-size-body-lg)}
+.overline{font-size:var(--font-size-overline);font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--color-neutral-700)}
+.badge{display:inline-flex;gap:var(--space-1);align-items:center;border-radius:var(--radius-full);padding:var(--space-1) var(--space-3);font-size:var(--font-size-caption);font-weight:600}
+.badge.success{background:rgba(46,125,70,.1);color:var(--color-success-500)}
+.badge.warning{background:rgba(199,123,18,.1);color:#8F5604}
+.badge.danger{background:rgba(179,38,30,.1);color:var(--color-danger-500)}
+.badge.info{background:rgba(47,111,166,.1);color:var(--color-info-500)}
+.badge.gold{background:var(--color-accent-gold-100);color:var(--color-accent-gold-700)}
+.badge.neutral{background:var(--color-neutral-100);color:var(--color-neutral-700)}
+.btn{min-height:44px;min-width:44px;padding:0 var(--space-4);border-radius:var(--radius-md);font-weight:600;cursor:pointer;border:2px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2)}
+.btn.primary{background:var(--color-primary-600);color:#fff}.btn.primary:hover{background:var(--color-primary-500)}
+.btn.secondary{background:transparent;border-color:var(--color-primary-600);color:var(--color-primary-600)}
+.btn.ghost{background:transparent;color:var(--color-neutral-700)}
+.btn.danger{background:var(--color-danger-500);color:#fff}
+.btn:disabled{background:var(--color-neutral-300);color:var(--color-neutral-500);cursor:not-allowed;border-color:transparent}
+.advice{background:var(--color-accent-gold-100);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);font-size:var(--font-size-body-lg)}
+.banner{background:rgba(47,111,166,.1);border:1px solid var(--color-info-500);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);display:flex;gap:var(--space-3);align-items:center;justify-content:space-between;color:var(--color-neutral-900)}
+.notice{background:var(--color-neutral-100);border:1px dashed var(--color-neutral-500);border-radius:var(--radius-md);padding:var(--space-3);font-size:var(--font-size-caption);color:var(--color-neutral-700)}
+.bar{height:8px;background:var(--color-neutral-100);border-radius:var(--radius-full);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--color-info-500)}
+.field{display:flex;flex-direction:column;gap:var(--space-1)}
+.field label{font-weight:600}
+.field input{min-height:44px;border:1px solid var(--color-neutral-300);border-radius:var(--radius-sm);padding:0 var(--space-3);background:#fff}
+.field input:focus{outline:none;border:2px solid var(--color-primary-600)}
+.field.err input{border-color:var(--color-danger-500)}
+.err-text{color:var(--color-danger-500);font-size:var(--font-size-caption)}
+.grid{display:grid;gap:var(--space-4)}
+.device.admin .grid.cols{grid-template-columns:1fr 1fr}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2);text-align:center}
+.stat-grid .card{padding:var(--space-3);align-items:center}
+.stat-grid b{font-size:var(--font-size-h2)}
+.empty{text-align:center;padding:var(--space-6) var(--space-4);display:flex;flex-direction:column;gap:var(--space-3);align-items:center}
+.skel{height:64px;border-radius:var(--radius-md);background:linear-gradient(90deg,var(--color-neutral-100),var(--color-neutral-0),var(--color-neutral-100));background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.toasts{position:fixed;top:60px;right:var(--space-3);display:flex;flex-direction:column;gap:var(--space-2);z-index:50;width:min(340px,calc(100vw - 24px))}
+.toast{background:var(--color-neutral-0);border-radius:var(--radius-md);box-shadow:var(--shadow-md);padding:var(--space-3) var(--space-4);border-left:4px solid var(--color-info-500);display:flex;gap:var(--space-3);align-items:flex-start}
+.toast.warning{border-left-color:var(--color-warning-500)}.toast.danger{border-left-color:var(--color-danger-500)}.toast.success{border-left-color:var(--color-success-500)}
+.toast .x{margin-left:auto;background:none;border:0;cursor:pointer;min-width:44px;min-height:44px;margin:-10px -12px -10px auto;font-size:18px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-neutral-300)}
+th{font-size:var(--font-size-caption);color:var(--color-neutral-700)}
+.tablewrap{overflow-x:auto}
+.back{align-self:flex-start}
+@media(min-width:1024px){.stage{padding:var(--space-5)}}
+@media(min-width:640px){.device:not(.admin) .tabbar{position:sticky}}
+</style>
+</head>
+<body>
+<div class="demo-bar" role="region" aria-label="แถบควบคุมการสาธิต">
+  <strong>Prototype v1 : ระบบเตือนและแนะนำแนวทางการเรียนส่วนบุคคล</strong>
+  <div class="seg" role="group" aria-label="สลับมุมมองผู้ใช้">
+    <button id="p-student" aria-pressed="true">นักศึกษา</button>
+    <button id="p-admin" aria-pressed="false">ผู้ดูแลระบบ</button>
+  </div>
+  <label>สถานะจำลองรายการแจ้งเตือน
+    <select id="demoState" aria-label="สถานะจำลองของรายการแจ้งเตือน">
+      <option value="normal">ปกติ</option><option value="empty">ว่างเปล่า</option><option value="loading">กำลังโหลด</option><option value="error">เกิดข้อผิดพลาด</option>
+    </select>
+  </label>
+  <label><input type="checkbox" id="newUser"> ผู้ใช้ใหม่ (ข้อมูลน้อย)</label>
+  <span class="grow"></span>
+  <button class="btn secondary" id="reset" style="color:#fff;border-color:#fff;min-height:44px">รีเซ็ตข้อมูลตัวอย่าง</button>
+</div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="stage"><div class="device" id="device"></div></div>
+
+<script>
+(function(){
+var DEFAULT_TH={absence:3,drop:15,late:3,multi:2};
+var COURSES=[
+ {id:'CS101',name:'CS101 การเขียนโปรแกรมเบื้องต้น',absent:2,drop:4,late:0},
+ {id:'MA102',name:'MA102 แคลคูลัส 1',absent:4,drop:18,late:3},
+ {id:'EN103',name:'EN103 ภาษาอังกฤษเพื่อการสื่อสาร',absent:3,drop:6,late:1},
+ {id:'PH104',name:'PH104 ฟิสิกส์ทั่วไป',absent:0,drop:-3,late:0}
+];
+var S;
+function init(){
+ S={persona:'student',screen:'overview',alertId:null,th:Object.assign({},DEFAULT_TH),
+  lastEdit:'ตั้งค่าเริ่มต้นของระบบ',errors:{},draft:null,
+  status:{CS101:'success',MA102:'danger',EN103:'warning',PH104:'success'},
+  alerts:[
+   {id:1,course:'MA102',level:'danger',time:'วันนี้ 08:30',read:false,ack:false,title:'MA102 แคลคูลัส 1 : มีหลายปัจจัยที่ควรดูแล',
+    snap:{absence:3,drop:15,late:3},causes:[['ขาดเรียน','4 ครั้ง','เกณฑ์ ≥ 3 ครั้ง'],['คะแนนสอบลดลง','18%','เกณฑ์ ≥ 15%'],['ส่งงานล่าช้า','3 ครั้ง','เกณฑ์ ≥ 3 ครั้ง']]},
+   {id:2,course:'EN103',level:'warning',time:'เมื่อวาน 17:10',read:false,ack:false,title:'EN103 ภาษาอังกฤษเพื่อการสื่อสาร : ใกล้ถึงเกณฑ์ขาดเรียน',
+    snap:{absence:3,drop:15,late:3},causes:[['ขาดเรียน','3 ครั้ง','เกณฑ์ ≥ 3 ครั้ง']]},
+   {id:3,course:null,level:'info',time:'จ. 29 ก.ย. 09:00',read:true,ack:true,title:'สรุปภาพรวมสัปดาห์ที่ผ่านมาพร้อมแล้ว',snap:null,causes:[]}
+  ],nextId:4,newUser:false,demoState:'normal',toast:[]};
+}
+init();
+var $=function(s){return document.querySelector(s)};
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var LV={success:['ปกติ','✔'],warning:['ต้องเฝ้าระวัง','▲'],danger:['ความเสี่ยงสูง','●'],info:['ข้อมูลทั่วไป','ℹ']};
+function badge(l){return '<span class="badge '+l+'"><span aria-hidden="true">'+LV[l][1]+'</span>'+LV[l][0]+'</span>'}
+function cname(id){var c=COURSES.filter(function(x){return x.id===id})[0];return c?c.name:''}
+function unread(){return S.alerts.filter(function(a){return !a.read}).length}
+
+/* toast */
+function toast(msg,level,sticky){
+ var id='t'+Date.now()+Math.random();
+ var el=document.createElement('div');el.className='toast '+level;el.id=id;el.setAttribute('role',level==='danger'?'alert':'status');
+ el.innerHTML='<span aria-hidden="true">'+LV[level][1]+'</span><div><b>'+esc(msg[0])+'</b><div class="caption" style="color:var(--color-neutral-700)">'+esc(msg[1]||'')+'</div></div>'+(sticky?'<button class="x" aria-label="ปิดการแจ้งเตือน">✕</button>':'');
+ $('#toasts').appendChild(el);
+ function rm(){if(el.parentNode)el.parentNode.removeChild(el)}
+ if(sticky)el.querySelector('.x').onclick=rm;else setTimeout(rm,6000);
+}
+
+/* nav */
+var STU_TABS=[['overview','ภาพรวม','▦'],['notifications','แจ้งเตือน','🔔'],['advice','คำแนะนำ','💡'],['weekly','สรุปสัปดาห์','📅']];
+function go(screen,id){S.screen=screen;if(id!==undefined)S.alertId=id;render();window.scrollTo(0,0)}
+function shell(inner){
+ var admin=S.persona==='admin';
+ var dev=$('#device');dev.className='device'+(admin?' admin':'');
+ var top='<header class="topbar"><span class="brand">Grade Runway</span><span class="who"><span class="avatar" aria-hidden="true">'+(admin?'อ':'ส')+'</span>'+(admin?'อ.วรพจน์ (ผู้ดูแลระบบ)':'สมหญิง ใจดี')+'</span></header>';
+ var tabs='';
+ if(!admin){
+  var cur=S.screen==='alert-detail'?'notifications':S.screen;
+  var nav=STU_TABS.map(function(t){return '<button data-go="'+t[0]+'" '+(t[0]===cur?'aria-current="page"':'')+'><span class="ico" aria-hidden="true">'+t[2]+'</span>'+t[1]+(t[0]==='notifications'&&unread()?'<span class="dot" aria-label="ยังไม่ได้อ่าน '+unread()+' รายการ">'+unread()+'</span>':'')+'</button>'}).join('');
+  tabs='<nav class="tabbar" aria-label="เมนูหลัก">'+nav+'</nav>';
+ } else {
+  tabs='';
+ }
+ dev.innerHTML=top+'<main class="content" id="main">'+inner+'</main>'+tabs;
+ dev.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){go(b.getAttribute('data-go'))}});
+}
+
+/* screens */
+function vOverview(){
+ var risky=Object.keys(S.status).filter(function(k){return S.status[k]!=='success'}).length;
+ var banner=S.newUser?'':'<div class="banner" role="status"><span><b>สรุปรายสัปดาห์พร้อมแล้ว</b><br><span class="caption" style="color:var(--color-neutral-700)">ดูภาพรวมสัปดาห์ที่ผ่านมาของคุณ</span></span><button class="btn secondary" data-go="weekly">ดูสรุป</button></div>';
+ var h='<div><h1>ภาพรวมผลการเรียน</h1><p class="muted">สวัสดี สมหญิง ภาคเรียนที่ 1/2569</p></div>'+banner;
+ if(S.newUser){
+  h+='<div class="card empty"><div style="font-size:32px" aria-hidden="true">🌱</div><h3>ยังมีข้อมูลไม่พอสำหรับประเมินแนวโน้ม</h3><p class="muted">ระบบต้องการข้อมูลการเข้าเรียนและคะแนนอย่างน้อย 2 สัปดาห์ ระหว่างนี้ลองดูคำแนะนำทั่วไปได้เลย</p><button class="btn primary" data-go="advice">ดูคำแนะนำทั่วไป</button></div>';
+  return h;
+ }
+ h+='<div class="stat-grid"><div class="card"><span class="caption">รายวิชา</span><b>'+COURSES.length+'</b></div><div class="card"><span class="caption">ต้องดูแล</span><b>'+risky+'</b></div><div class="card"><span class="caption">แจ้งเตือนใหม่</span><b>'+unread()+'</b></div></div>';
+ h+='<div class="overline">สถานะรายวิชา</div>';
+ COURSES.forEach(function(c){
+  var st=S.status[c.id];
+  var tip=st==='success'?'ทุกอย่างอยู่ในเกณฑ์ ทำต่อไปได้เลย':'มีคำแนะนำพร้อมให้ดูแล้ว';
+  h+='<button class="card clickable risk-'+st+'" data-course="'+c.id+'"><div class="row between"><h3>'+esc(c.name)+'</h3>'+badge(st)+'</div>'
+   +'<div class="caption">ขาดเรียน '+c.absent+' ครั้ง · คะแนนเปลี่ยน '+(c.drop>0?'-'+c.drop:'+'+(-c.drop))+'% · ส่งช้า '+c.late+' ครั้ง</div>'
+   +'<div class="'+(st==='success'?'muted':'lg')+'">'+tip+(st!=='success'?' <u>ดูรายละเอียด</u>':'')+'</div></button>';
+ });
+ h+='<div class="notice">หมายเหตุ: ค่าเกณฑ์ในตัวอย่างนี้ติดป้าย "ตัวอย่าง" ค่าจริงมาจากการตั้งค่าของผู้ดูแลระบบ (ขณะนี้ขาดเรียน ≥ '+S.th.absence+' ครั้ง, คะแนนลด ≥ '+S.th.drop+'%, ส่งช้า ≥ '+S.th.late+' ครั้ง) <span class="badge neutral">ตัวอย่าง</span></div>';
+ return h;
+}
+function vNotif(){
+ var h='<div class="row between"><h1>การแจ้งเตือน</h1><button class="btn ghost" id="readall">อ่านทั้งหมด</button></div>';
+ if(S.demoState==='loading')return h+'<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+ if(S.demoState==='error')return h+'<div class="card risk-danger" role="alert"><h3><span aria-hidden="true">●</span> โหลดการแจ้งเตือนไม่สำเร็จ</h3><p>การเชื่อมต่อขัดข้องชั่วคราว ลองตรวจสอบอินเทอร์เน็ตแล้วกด "ลองใหม่" ข้อมูลของคุณยังปลอดภัยดี</p><div class="row"><button class="btn primary" id="retry">ลองใหม่</button></div></div>';
+ var list=S.demoState==='empty'?[]:S.alerts.slice().sort(function(a,b){return b.id-a.id});
+ if(!list.length)return h+'<div class="card empty"><div style="font-size:32px" aria-hidden="true">🎉</div><h3>ยังไม่มีการแจ้งเตือน</h3><p class="muted">แปลว่าผลการเรียนของคุณอยู่ในเกณฑ์ปกติ ระบบจะแจ้งทันทีเมื่อมีเรื่องที่ควรดูแล</p><button class="btn secondary" data-go="advice">ดูคำแนะนำการเรียน</button></div>';
+ list.forEach(function(a){
+  h+='<button class="card clickable risk-'+(a.level==='info'?'success':a.level)+'" data-alert="'+a.id+'" style="'+(a.read?'':'background:var(--color-primary-50)')+'"><div class="row between">'+badge(a.level)+(a.read?'<span class="caption">อ่านแล้ว</span>':'<span class="badge neutral">ใหม่</span>')+'</div><h3>'+esc(a.title)+'</h3><span class="caption">'+esc(a.time)+'</span></button>';
+ });
+ return h;
+}
+function vAlert(){
+ var a=S.alerts.filter(function(x){return x.id===S.alertId})[0];
+ if(!a)return '<button class="btn ghost back" data-go="notifications">← กลับ</button><div class="card empty"><h3>ไม่พบการแจ้งเตือนนี้</h3><p class="muted">อาจถูกเก็บเข้าประวัติแล้ว กลับไปที่รายการแจ้งเตือนเพื่อดูรายการอื่น</p></div>';
+ a.read=true;
+ var h='<button class="btn ghost back" data-go="notifications">← กลับรายการแจ้งเตือน</button>';
+ h+='<div class="card risk-'+(a.level==='info'?'success':a.level)+'"><div class="row between">'+badge(a.level)+'<span class="caption">'+esc(a.time)+'</span></div><h2>'+esc(a.title)+'</h2>';
+ if(a.level==='danger')h+='<p class="muted">มีหลายปัจจัยเกิดขึ้นพร้อมกัน เราเลยรวมเป็นการแจ้งเตือนเดียวเพื่อให้คุณโฟกัสได้ง่าย ลองทำตามคำแนะนำด้านล่างนะ</p>';
+ h+='</div>';
+ if(a.causes.length){
+  h+='<div class="overline">สาเหตุที่ระบบพบ</div><div class="card tablewrap"><table><thead><tr><th>ปัจจัย</th><th>ค่าของคุณ</th><th>เกณฑ์ ณ เวลาแจ้งเตือน</th></tr></thead><tbody>'
+   +a.causes.map(function(c){return '<tr><td>'+c[0]+'</td><td><b>'+c[1]+'</b></td><td>'+c[2]+' <span class="badge neutral">ตัวอย่าง</span></td></tr>'}).join('')+'</tbody></table></div>';
+  h+='<div class="notice">แจ้งเตือนนี้ใช้เกณฑ์ ณ เวลาที่ประเมิน หากผู้ดูแลระบบแก้เกณฑ์ภายหลัง จะไม่ประเมินแจ้งเตือนเดิมย้อนหลัง</div>';
+  h+='<div class="overline">ลองทำตามนี้</div><div class="advice">'+adviceText(a.course)+'</div>';
+ }
+ h+='<div class="row"><button class="btn primary" id="ack" '+(a.ack?'disabled':'')+'>'+(a.ack?'รับทราบแล้ว':'รับทราบ')+'</button>'+(a.course?'<button class="btn secondary" data-go="advice">ดูคำแนะนำทั้งหมด</button>':'<button class="btn secondary" data-go="weekly">ดูสรุปสัปดาห์</button>')+'</div>';
+ return h;
+}
+var ADV={
+ MA102:['ทบทวนแบบฝึกหัดบทอนุพันธ์ 30 นาทีต่อวัน','นัดพบอาจารย์ผู้สอนในชั่วโมง office hour เพื่อถามจุดที่ยังไม่เข้าใจ','จัดตารางส่งงานย้อนหลัง 3 ชิ้นให้เสร็จภายในสัปดาห์นี้','ลองเข้าร่วมกลุ่มติวที่เพื่อนในคณะจัด'],
+ EN103:['เข้าเรียนครั้งถัดไปให้ครบ เพื่อไม่ให้ถึงเกณฑ์ขาดเรียน','ทบทวนคำศัพท์ประจำหน่วย 10 คำต่อวัน'],
+ CS101:['ฝึกเขียนโค้ดโจทย์สั้นๆ วันละ 1 ข้อเพื่อรักษาจังหวะ'],
+ PH104:['ผลการเรียนดีมาก รักษาจังหวะเดิมไว้ได้เลย']
+};
+function adviceText(c){return (ADV[c]||['ทบทวนเนื้อหาสม่ำเสมอ']).slice(0,2).map(function(t){return '• '+esc(t)}).join('<br>')}
+function vAdvice(){
+ var h='<div><h1>คำแนะนำสำหรับคุณ</h1><p class="muted">จัดให้เหมาะกับสถานการณ์ของแต่ละรายวิชา</p></div>';
+ if(S.newUser){
+  h+='<div class="card"><span class="badge info">คำแนะนำทั่วไป</span><p class="muted">ยังไม่มีข้อมูลเพียงพอสำหรับคำแนะนำเฉพาะบุคคล นี่คือแนวทางที่นักศึกษาปีหนึ่งส่วนใหญ่ได้ประโยชน์</p></div>';
+  ['วางตารางทบทวนสั้นๆ วันละ 30 นาที','จดวันส่งงานทั้งหมดไว้ในปฏิทินเดียว','ถามอาจารย์หรือเพื่อนเมื่อติดขัดตั้งแต่สัปดาห์แรก'].forEach(function(t){h+='<div class="advice">'+t+'</div>'});
+  return h;
+ }
+ var order={danger:0,warning:1,success:2};
+ COURSES.slice().sort(function(a,b){return order[S.status[a.id]]-order[S.status[b.id]]}).forEach(function(c){
+  h+='<div class="card risk-'+S.status[c.id]+'"><div class="row between"><h3>'+esc(c.name)+'</h3>'+badge(S.status[c.id])+'</div>'
+   +'<div class="advice">'+(ADV[c.id]||[]).map(function(t){return '• '+esc(t)}).join('<br>')+'</div></div>';
+ });
+ return h;
+}
+function vWeekly(){
+ var h='<div><h1>สรุปรายสัปดาห์</h1><p class="muted">29 ก.ย. – 5 ต.ค. 2569</p></div>';
+ if(S.newUser)return h+'<div class="card empty"><div style="font-size:32px" aria-hidden="true">🗓️</div><h3>สรุปฉบับแรกจะพร้อมในสัปดาห์หน้า</h3><p class="muted">ระบบต้องเก็บข้อมูลการเรียนอย่างน้อย 1 สัปดาห์เต็มก่อน แล้วจะแจ้งให้คุณทราบ</p><button class="btn secondary" data-go="advice">ดูคำแนะนำทั่วไป</button></div>';
+ h+='<div class="banner" role="status"><span aria-hidden="true">ℹ</span><span>สัปดาห์นี้คุณเข้าเรียนครบ 11 จาก 14 คาบ และส่งงานตรงเวลา 5 จาก 7 ชิ้น</span></div>';
+ h+='<div class="card"><h3>การเข้าเรียน</h3><div class="row between"><span>79%</span><span class="caption">เป้าหมาย 80%</span></div><div class="bar" role="progressbar" aria-valuenow="79" aria-valuemin="0" aria-valuemax="100" aria-label="การเข้าเรียน"><i style="width:79%"></i></div></div>';
+ h+='<div class="card"><h3>การส่งงาน</h3><div class="row between"><span>71%</span><span class="caption">5 จาก 7 ชิ้น</span></div><div class="bar" role="progressbar" aria-valuenow="71" aria-valuemin="0" aria-valuemax="100" aria-label="การส่งงาน"><i style="width:71%"></i></div></div>';
+ h+='<div class="overline">ไฮไลต์</div><div class="card risk-success"><span class="badge success">✔ ทำได้ดี</span><p>PH104 ฟิสิกส์ คะแนนเพิ่มขึ้น 3% ต่อเนื่อง 2 สัปดาห์</p></div>';
+ h+='<div class="card risk-warning"><span class="badge warning">▲ ควรดูแล</span><p>EN103 ขาดเรียนครบ 3 ครั้ง ลองเข้าเรียนคาบถัดไปให้ครบนะ</p><button class="btn secondary" data-go="advice">ดูคำแนะนำ</button></div>';
+ return h;
+}
+function vAdmin(){
+ var d=S.draft||{absence:S.th.absence,drop:S.th.drop,late:S.th.late,multi:S.th.multi};
+ function f(k,label,unit,help){return '<div class="field '+(S.errors[k]?'err':'')+'"><label for="f-'+k+'">'+label+'</label><input id="f-'+k+'" type="number" inputmode="numeric" value="'+esc(d[k])+'" '+(S.errors[k]?'aria-invalid="true" aria-describedby="e-'+k+'"':'')+'><span class="caption">'+help+' ('+unit+')</span>'+(S.errors[k]?'<span class="err-text" id="e-'+k+'" role="alert">'+S.errors[k]+'</span>':'')+'</div>'}
+ var h='<div><h1>ตั้งค่าเกณฑ์การแจ้งเตือน</h1><p class="muted">กำหนดเงื่อนไขที่ระบบใช้ประเมินความเสี่ยงของนักศึกษาทุกคน แก้ไขล่าสุด: '+esc(S.lastEdit)+'</p></div>';
+ h+='<div class="grid cols"><form class="card" id="form" novalidate><h2>เกณฑ์ปัจจุบัน <span class="badge neutral">ตัวอย่าง</span></h2>'
+  +f('absence','ขาดเรียนตั้งแต่','ครั้ง','ถึงเกณฑ์นี้จะนับเป็น 1 ปัจจัยเสี่ยง')
+  +f('drop','คะแนนสอบลดลงตั้งแต่','%','เทียบกับค่าเฉลี่ยก่อนหน้า')
+  +f('late','ส่งงานล่าช้าตั้งแต่','ครั้ง','ในรายวิชาเดียวกัน')
+  +f('multi','จำนวนปัจจัยที่ถือเป็นความเสี่ยงสูง','ปัจจัย','ตั้งแต่ค่านี้ขึ้นไปจะแจ้งเตือนระดับสูงหนึ่งรายการต่อวิชา')
+  +'<div class="row"><button class="btn primary" type="submit">บันทึกเกณฑ์</button><button class="btn ghost" type="button" id="resetth">คืนค่าเริ่มต้น</button></div></form>'
+  +'<div class="grid"><div class="card"><h2>ผลกระทบของการแก้เกณฑ์</h2><p class="muted">เกณฑ์ใหม่มีผลกับรอบประเมินถัดไปเท่านั้น แจ้งเตือนเดิมที่ส่งไปแล้วจะไม่ถูกประเมินย้อนหลัง</p><button class="btn secondary" id="simulate">จำลองรอบประเมินถัดไป</button><span class="caption">กดแล้วสลับไปมุมมองนักศึกษาเพื่อดูแจ้งเตือนใหม่ที่เกิดจากเกณฑ์ปัจจุบัน</span></div>'
+  +'<div class="card"><h2>นักศึกษาตัวอย่างที่จะถูกประเมิน</h2><div class="tablewrap"><table><thead><tr><th>วิชา</th><th>ขาด</th><th>คะแนนลด</th><th>ส่งช้า</th></tr></thead><tbody>'
+  +COURSES.map(function(c){return '<tr><td>'+c.id+'</td><td>'+c.absent+'</td><td>'+(c.drop>0?c.drop+'%':'-')+'</td><td>'+c.late+'</td></tr>'}).join('')+'</tbody></table></div></div></div></div>';
+ return h;
+}
+function bind(){
+ var m=$('#main');
+ m.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){go(b.getAttribute('data-go'))}});
+ m.querySelectorAll('[data-course]').forEach(function(b){b.onclick=function(){
+  var id=b.getAttribute('data-course');var a=S.alerts.filter(function(x){return x.course===id})[0];
+  if(a)go('alert-detail',a.id);else toast(['ทุกอย่างปกติ','วิชานี้ยังไม่มีการแจ้งเตือน'],'success');}});
+ m.querySelectorAll('[data-alert]').forEach(function(b){b.onclick=function(){go('alert-detail',+b.getAttribute('data-alert'))}});
+ var r=$('#readall');if(r)r.onclick=function(){S.alerts.forEach(function(a){a.read=true});toast(['อ่านทั้งหมดแล้ว',''],'success');render()};
+ var rt=$('#retry');if(rt)rt.onclick=function(){$('#demoState').value='normal';S.demoState='normal';render()};
+ var ak=$('#ack');if(ak)ak.onclick=function(){var a=S.alerts.filter(function(x){return x.id===S.alertId})[0];a.ack=true;toast(['รับทราบแล้ว','ขอบคุณที่ติดตามผลการเรียน'],'success');render()};
+ var fm=$('#form');if(fm){
+  fm.onsubmit=function(e){e.preventDefault();
+   var d={};S.errors={};
+   ['absence','drop','late','multi'].forEach(function(k){var v=$('#f-'+k).value;d[k]=v;
+    var n=Number(v);if(v===''||isNaN(n)||n<1||Math.floor(n)!==n)S.errors[k]='กรอกเป็นจำนวนเต็มตั้งแต่ 1 ขึ้นไป';
+    else if(k==='drop'&&n>100)S.errors[k]='ค่าต้องไม่เกิน 100%';
+    else if(k==='multi'&&n>3)S.errors[k]='เลือกได้สูงสุด 3 ปัจจัย (ระบบมี 3 ปัจจัย)';});
+   S.draft=d;
+   if(Object.keys(S.errors).length){toast(['บันทึกไม่สำเร็จ','โปรดแก้ช่องที่มีเครื่องหมายแจ้งข้อผิดพลาด'],'danger',true);render();return}
+   S.th={absence:+d.absence,drop:+d.drop,late:+d.late,multi:+d.multi};S.draft=null;S.lastEdit='วันนี้ '+new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})+' โดย อ.วรพจน์';
+   toast(['บันทึกเกณฑ์แล้ว','มีผลกับรอบประเมินถัดไป ไม่ประเมินแจ้งเตือนเดิมย้อนหลัง'],'success');render();};
+ }
+ var rs=$('#resetth');if(rs)rs.onclick=function(){S.th=Object.assign({},DEFAULT_TH);S.draft=null;S.errors={};toast(['คืนค่าเริ่มต้นแล้ว',''],'info');render()};
+ var sm=$('#simulate');if(sm)sm.onclick=simulate;
+}
+function simulate(){
+ var added=0;
+ COURSES.forEach(function(c){
+  var causes=[];
+  if(c.absent>=S.th.absence)causes.push(['ขาดเรียน',c.absent+' ครั้ง','เกณฑ์ ≥ '+S.th.absence+' ครั้ง']);
+  if(c.drop>=S.th.drop)causes.push(['คะแนนสอบลดลง',c.drop+'%','เกณฑ์ ≥ '+S.th.drop+'%']);
+  if(c.late>=S.th.late)causes.push(['ส่งงานล่าช้า',c.late+' ครั้ง','เกณฑ์ ≥ '+S.th.late+' ครั้ง']);
+  var lvl=causes.length>=S.th.multi?'danger':(causes.length>=1?'warning':'success');
+  if(lvl==='success')return;
+  var exists=S.alerts.some(function(a){return a.course===c.id&&a.level===lvl});
+  if(exists)return;
+  S.alerts.push({id:S.nextId++,course:c.id,level:lvl,time:'วันนี้ '+new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}),read:false,ack:false,
+   title:c.name+(lvl==='danger'?' : มีหลายปัจจัยที่ควรดูแล':' : ควรเฝ้าระวัง'),snap:Object.assign({},S.th),causes:causes});
+  if(!ADV[c.id])ADV[c.id]=['ทบทวนเนื้อหาสม่ำเสมอ'];
+  S.status[c.id]=lvl;added++;
+ });
+ if(added){toast(['พบแจ้งเตือนใหม่ '+added+' รายการ','สลับไปมุมมองนักศึกษาเพื่อดูผล'],'warning');}
+ else toast(['ไม่มีแจ้งเตือนใหม่','ไม่พบนักศึกษาตัวอย่างที่เข้าเกณฑ์ใหม่ (แจ้งเตือนเดิมไม่ถูกประเมินซ้ำ)'],'info');
+ render();
+}
+function render(){
+ var inner;
+ if(S.persona==='admin'){inner=vAdmin();}
+ else{inner={overview:vOverview,notifications:vNotif,'alert-detail':vAlert,advice:vAdvice,weekly:vWeekly}[S.screen]();}
+ shell(inner);bind();
+ if(S.persona==='student'&&S.screen==='notifications')document.title='แจ้งเตือน (' + unread() + ') — Grade Runway';
+}
+function setPersona(p){
+ S.persona=p;$('#p-student').setAttribute('aria-pressed',p==='student');$('#p-admin').setAttribute('aria-pressed',p==='admin');
+ if(p==='student'&&S.screen==='admin')S.screen='overview';render();
+ if(p==='student'&&unread()&&!window.__shown){window.__shown=1;toast(['สมหญิง มีเรื่องที่ควรดูแล','MA102: ลองดูคำแนะนำนี้นะ'],'danger',true)}
+}
+$('#p-student').onclick=function(){setPersona('student')};
+$('#p-admin').onclick=function(){setPersona('admin')};
+$('#demoState').onchange=function(e){S.demoState=e.target.value;if(S.persona==='student'){S.screen='notifications';}render()};
+$('#newUser').onchange=function(e){S.newUser=e.target.checked;render()};
+$('#reset').onclick=function(){var p=S.persona;init();S.persona=p;window.__shown=0;$('#demoState').value='normal';$('#newUser').checked=false;COURSES.forEach(function(){});ADV.CS101=['ฝึกเขียนโค้ดโจทย์สั้นๆ วันละ 1 ข้อเพื่อรักษาจังหวะ'];render();toast(['รีเซ็ตแล้ว',''],'info')};
+setPersona('student');
+})();
+</script>
+</body>
+</html>

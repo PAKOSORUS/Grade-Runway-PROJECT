@@ -5,6 +5,7 @@
 ## หัวข้อ (Topics)
 
 - [[high-grade-mentor-chat/index|ช่องแชทรีวิวและแนะนำวิธีการเรียนจากนักศึกษาเกรดสูง]]
+- [[personalized-learning-reminder/index|ระบบเตือนและแนะนำแนวทางการเรียนส่วนบุคคล]]
 
 ---
 ย้อนกลับ: [[../index|01-prototypes]]
