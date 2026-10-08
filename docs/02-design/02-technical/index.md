@@ -27,3 +27,5 @@ input จากโฟลเดอร์อื่น: features list และ use
 _(รายการด้านล่างจะถูกเพิ่มโดย skill เมื่อสร้างเอกสารแต่ละฉบับ)_
 
 - [[high-level-architecture|High Level Architecture (Conceptual)]] — ภาพรวมระบบเชิงแนวคิด ยังไม่ผูกกับ technical stack
+- [[database-spec|Database Spec (Conceptual)]] — ER Diagram และรายละเอียดแต่ละตาราง ยังไม่ผูกกับ technical stack
+- [[api-spec|API Spec (Conceptual)]] — operation ของระบบ อ้างอิงกลับไปยัง feature/user story ยังไม่ผูกกับ technical stack
