@@ -30,3 +30,5 @@
 
 ---
 ย้อนกลับ: [[index|01-prototypes]] | ต้นทาง: [[../../01-requirements/01-spec/20260825-01-personalized-learning-reminder|ระบบเตือนและแนะนำแนวทางการเรียนส่วนบุคคล]]
+
+> ดู prototype ที่ derive จากเอกสารนี้: [[prototypes/personalized-learning-reminder/index|Prototype: ระบบเตือนและแนะนำแนวทางการเรียนส่วนบุคคล]]

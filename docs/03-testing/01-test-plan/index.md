@@ -18,3 +18,5 @@
 - [[20260912-03-test-spec-risk-notification|Test Spec: การตรวจจับเงื่อนไขความเสี่ยงและแจ้งเตือนแบบ in-app]]
 - [[20260912-04-test-spec-weekly-summary|Test Spec: สรุปภาพรวมสถานการณ์การเรียนรายสัปดาห์]]
 - [[20260912-05-test-spec-admin-criteria-management|Test Spec: การจัดการเกณฑ์/ตัวแปรของผู้ดูแลระบบ และสถาปัตยกรรมรองรับหมวดหมู่อื่น]]
+- [[20261007-01-acceptance-criteria-logging-pdpa-compliance|Acceptance Criteria: การเก็บ Log กิจกรรมและการปฏิบัติตาม PDPA]]
+- [[20261007-02-test-plan-logging-pdpa-compliance|Test Plan: การเก็บ Log กิจกรรมและการปฏิบัติตาม PDPA]]

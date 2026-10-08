@@ -68,5 +68,9 @@
 - [[20260825-01-personalized-learning-reminder|ระบบเตือนและแนะนำแนวทางการเรียนส่วนบุคคล]] — ประมวลผลข้อมูลผลการเรียน/พฤติกรรมย้อนหลังของผู้เรียนเป็นรายบุคคล ซึ่งอยู่ภายใต้ขอบเขตของ PDPA
 - [[20260825-02-high-grade-peer-review-chat|ช่องแชทรีวิวและแนะนำวิธีการเรียนจากนักศึกษาเกรดสูง]] — มีการเก็บ/ตรวจสอบเนื้อหาแชทที่อาจมีข้อมูลส่วนบุคคล และมีกระบวนการ pre-moderation ที่ต้องพิจารณาสิทธิการเข้าถึงข้อมูล
 
+> ดูฟีเจอร์และ journey ที่ derive จากเอกสารนี้: [[../../02-design/01-prototypes/20261007-01-features-list-logging-pdpa-compliance|Features List]], [[../../02-design/01-prototypes/20261007-02-user-journey-auditor-logging-pdpa-compliance|User Journey: ผู้ตรวจสอบ]], [[../../02-design/01-prototypes/20261007-03-user-journey-data-subject-logging-pdpa-compliance|User Journey: เจ้าของข้อมูล]], [[../../02-design/01-prototypes/20261007-04-user-journey-data-controller-logging-pdpa-compliance|User Journey: เจ้าหน้าที่ PDPA]]
+
+> ดู test plan ที่ derive จากเอกสารนี้: [[../../03-testing/01-test-plan/20261007-01-acceptance-criteria-logging-pdpa-compliance|Acceptance Criteria]], [[../../03-testing/01-test-plan/20261007-02-test-plan-logging-pdpa-compliance|Test Plan]]
+
 ---
 ย้อนกลับ: [[index|01-spec]]
