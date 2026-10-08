@@ -408,3 +408,5 @@ erDiagram
 
 ---
 ย้อนกลับ: [[index|02-technical]]
+
+> รายละเอียดข้อมูลและ API ที่ต่อยอดจากเอกสารนี้: [[database-spec|Database Spec]], [[api-spec|API Spec]]
