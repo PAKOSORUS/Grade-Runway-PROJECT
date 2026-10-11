@@ -345,6 +345,100 @@
     }).join("");
   }
 
+  // ---- ห้องแชท: อ่านจาก Firestore (อ่านอย่างเดียว) ----
+  // chatRooms/{course_id} + subcollection messages + mentorRequests (approved) ของวิชานั้น
+  var chatsState = {};
+  function chatKey(role, courseId){ return role+"|"+courseId; }
+  function getChat(role, courseId){
+    var k = chatKey(role, courseId);
+    if(!chatsState[k]) chatsState[k] = { status:"idle", room:null, messages:[], mentorIds:[], error:"" };
+    return chatsState[k];
+  }
+
+  function loadChat(role, courseId){
+    var cs = getChat(role, courseId);
+    if(cs.status==="loading") return;
+    cs.status = "loading"; cs.error = "";
+    render();
+    var uid = FIRESTORE_USER[role];
+    Promise.resolve().then(function(){
+      var db = getDb();
+      var ref = db.collection("chatRooms").doc(courseId);
+      return Promise.all([
+        ref.get(),
+        ref.collection("messages").where("status","==","published").get(),
+        ref.collection("messages").where("author_id","==",uid).get(),
+        db.collection("mentorRequests").where("course_id","==",courseId).where("status","==","approved").get()
+      ]);
+    }).then(function(r){
+      if(!r[0].exists) throw new Error("ไม่พบห้องแชท "+courseId);
+      cs.room = r[0].data();
+      var byId = {};
+      r[1].forEach(function(d){ var m = d.data(); m.id = d.id; byId[d.id] = m; });
+      r[2].forEach(function(d){ var m = d.data(); m.id = d.id; byId[d.id] = m; });
+      cs.messages = Object.keys(byId).map(function(id){ return byId[id]; })
+        .sort(function(a,b){ return millisOf(a.created_at) - millisOf(b.created_at); });
+      cs.mentorIds = [];
+      r[3].forEach(function(d){ cs.mentorIds.push(d.data().user_id); });
+      cs.status = "ready";
+    }).catch(function(err){
+      cs.status = "error";
+      cs.error = (err && err.message) ? err.message : String(err);
+    }).then(function(){ render(); });
+  }
+
+  function fmtTime(ts){
+    if(!ts || !ts.toDate) return "";
+    return ts.toDate().toLocaleString("th-TH", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" });
+  }
+
+  function renderFsBubble(m, uid, mentorIds){
+    var mine = m.author_id===uid;
+    var mentorTag = mentorIds.indexOf(m.author_id)!==-1 ? ' <span title="ผู้แนะนำที่ได้รับอนุมัติ">👑</span>' : '';
+    var statusLine = "";
+    if(mine && m.status==="pending"){
+      statusLine = '<span class="badge badge-warning">รอการตรวจสอบ — ยังไม่เผยแพร่</span>';
+    } else if(mine && m.status==="rejected"){
+      statusLine = '<span class="badge badge-danger">ถูกปฏิเสธ</span><div class="bubble-reason">'+escapeHtml(m.rejection_reason||"ไม่ระบุเหตุผล")+'</div>';
+    }
+    return '<div class="bubble-row '+(mine?'mine':'other')+'">'
+      + '<div class="bubble-col '+(mine?'mine':'')+'">'
+      + '<div class="bubble-name">'+escapeHtml(mine ? m.author_name+" (คุณ)" : m.author_name)+mentorTag+'</div>'
+      + '<div class="bubble '+(mine?'mine':'other')+'">'+escapeHtml(m.text)+'</div>'
+      + '<div class="bubble-meta">'+escapeHtml(fmtTime(m.created_at))+'</div>'
+      + statusLine
+      + '</div></div>';
+  }
+
+  function renderFirestoreChat(role, courseId){
+    var cs = getChat(role, courseId);
+    var uid = FIRESTORE_USER[role];
+    var meta = cs.room || roomsState[role].rooms.filter(function(r){ return r.id===courseId; })[0] || {};
+    var body;
+    if(cs.status==="idle" || cs.status==="loading"){
+      body = [1,2,3].map(function(i){
+        return '<div class="bubble-row '+(i===2?'mine':'other')+'" aria-hidden="true"><div class="skeleton" style="width:'+(i===2?'55%':'70%')+';height:44px;border-radius:16px"></div></div>';
+      }).join("");
+    } else if(cs.status==="error"){
+      body = '<div class="empty"><div class="icon">⚠️</div><p>โหลดข้อความไม่สำเร็จ กรุณาลองใหม่อีกครั้ง<br><span style="font-size:12px;color:var(--color-neutral-500)">'+escapeHtml(cs.error)+'</span></p>'
+        + '<button class="btn btn-secondary" data-action="retry-chat" data-role="'+role+'" data-subject="'+escapeHtml(courseId)+'">ลองอีกครั้ง</button></div>';
+    } else if(!cs.messages.length){
+      body = renderEmptyChat({ mentors: new Array(cs.room.mentor_count||0) });
+    } else {
+      body = cs.messages.map(function(m){ return renderFsBubble(m, uid, cs.mentorIds); }).join("");
+    }
+    return '<div class="topbar">'
+      + '<button class="back" data-action="back-to-rooms" data-role="'+role+'" aria-label="ย้อนกลับ">←</button>'
+      + '<div><div>'+escapeHtml(meta.course_code||courseId)+'</div><div style="font-size:12px;font-weight:400;opacity:.85">'+escapeHtml(meta.course_name||"")+'</div></div>'
+      + '</div>'
+      + '<div class="scroll-area" id="chat-scroll">'+body+'</div>'
+      + '<form class="composer" data-action="send-readonly">'
+      + '<textarea placeholder="พิมพ์ข้อความ..." required></textarea>'
+      + '<button type="submit" class="btn btn-primary">ส่ง</button>'
+      + '</form>'
+      + bottomTabs(role,"rooms");
+  }
+
   function renderRoomList(role){
     return '<div class="topbar"><span>ห้องแชทรายวิชา</span></div>'
       + '<div class="scroll-area">'+roomsBody(role)+'</div>'
@@ -381,6 +475,7 @@
   }
 
   function renderChatRoom(role, subjectId){
+    if(!subjects[subjectId]) return renderFirestoreChat(role, subjectId);
     var s = subjects[subjectId];
     var persona = PERSONA[role];
     var list = messages.filter(function(m){ return m.subjectId===subjectId && (m.status==="published" || m.senderId===persona.id); });
@@ -553,6 +648,7 @@
     var cs = document.getElementById("chat-scroll");
     if(cs) cs.scrollTop = cs.scrollHeight;
     if(state.role!=="admin" && state[state.role].screen==="rooms" && roomsState[state.role].status==="idle") loadRooms(state.role);
+    if(state.role!=="admin" && state[state.role].screen==="chat" && !subjects[state[state.role].subjectId] && getChat(state.role, state[state.role].subjectId).status==="idle") loadChat(state.role, state[state.role].subjectId);
   }
 
   function showToast(msg){
@@ -651,8 +747,11 @@
     var action = t.dataset.action;
     if(action==="back-to-rooms"){ state[t.dataset.role].screen="rooms"; render(); }
     else if(action==="retry-rooms"){ loadRooms(t.dataset.role); }
-    else if(action==="open-room" && !subjects[t.dataset.subject]){ showToast("หน้าห้องแชทยังเป็นข้อมูลจำลอง ยังไม่เชื่อมกับ Firestore"); }
-    else if(action==="open-room" || action==="goto-chat"){ state[t.dataset.role].screen="chat"; state[t.dataset.role].subjectId=t.dataset.subject; render(); }
+    else if(action==="retry-chat"){ loadChat(t.dataset.role, t.dataset.subject); }
+    else if(action==="open-room" || action==="goto-chat"){
+      if(!subjects[t.dataset.subject]) delete chatsState[chatKey(t.dataset.role, t.dataset.subject)]; // ห้องจาก Firestore: โหลดใหม่ทุกครั้งที่เข้า
+      state[t.dataset.role].screen="chat"; state[t.dataset.role].subjectId=t.dataset.subject; render();
+    }
     else if(action==="tab"){
       var role=t.dataset.role, tab=t.dataset.tab;
       if(tab==="rooms" || tab==="status"){ state[role].screen=tab; render(); }
@@ -681,6 +780,9 @@
       sendMessage(form.dataset.role, form.dataset.subject, text);
       render();
       showToast("ส่งข้อความแล้ว กำลังรอผู้ดูแลระบบตรวจสอบก่อนเผยแพร่");
+    } else if(form.dataset && form.dataset.action==="send-readonly"){
+      e.preventDefault();
+      showToast("ห้องนี้อ่านจาก Firestore แบบอ่านอย่างเดียว ยังส่งข้อความไม่ได้ในรอบนี้");
     } else if(form.id==="criteria-form"){
       e.preventDefault();
       saveCriteria();
