@@ -152,6 +152,10 @@
   .radio-row{display:flex;gap:18px;}
   .radio-row label{font-weight:400 !important;display:flex;align-items:center;gap:6px;font-size:14px;color:var(--color-neutral-900);}
 
+  .skeleton{background:linear-gradient(90deg,var(--color-neutral-100),var(--color-neutral-50),var(--color-neutral-100));background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:var(--radius-sm);}
+  .skeleton.sk-line{height:14px;}
+  @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+
   .toast{position:absolute;top:14px;left:50%;transform:translateX(-50%) translateY(-6px);background:var(--color-neutral-900);color:#fff;padding:10px 18px;border-radius:var(--radius-md);font-size:13px;box-shadow:var(--shadow-md);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:88%;text-align:center;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
@@ -185,6 +189,9 @@
   <button class="btn btn-ghost reset-btn" id="reset-btn">↺ รีเซ็ตข้อมูลตัวอย่างทั้งหมด</button>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.web.js"></script>
 <script>
 (function(){
   "use strict";
@@ -263,18 +270,84 @@
     }).join("")+'</div>';
   }
 
-  function renderRoomList(role){
-    var items = subjectOrder.map(function(id){
-      var s = subjects[id];
-      return '<button class="card room-card" data-action="open-room" data-role="'+role+'" data-subject="'+id+'">'
-        + '<div class="room-code">'+s.code+'</div>'
-        + '<div class="room-name">'+escapeHtml(s.name)+'</div>'
-        + subjectMentorBadge(s)
-        + '<div class="room-preview">'+escapeHtml(lastMessagePreview(id))+'</div>'
+  // ---- รายการห้องแชท: อ่านจาก Firestore ----
+  // ชื่อคอลเลกชัน/field ตรงกับ scripts/firestore-schema.js (เบราว์เซอร์ require ไฟล์นั้นไม่ได้ จึงพิมพ์ซ้ำเฉพาะที่ใช้ตรงนี้)
+  var FIRESTORE_USER = { mentee:"user-s02", mentor:"user-s01" };
+  var roomsState = {
+    mentee: { status:"idle", rooms:[], error:"" },
+    mentor: { status:"idle", rooms:[], error:"" }
+  };
+
+  function getDb(){
+    if(!window.firebase || !firebase.firestore) throw new Error("โหลด Firebase SDK ไม่สำเร็จ ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต");
+    if(!window.FIREBASE_CONFIG) throw new Error("ไม่พบไฟล์ firebase-config.web.js ในโฟลเดอร์เดียวกับไฟล์นี้ (คัดลอกจาก firebase-config.web.example.js)");
+    if(!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+    return firebase.firestore();
+  }
+
+  function millisOf(ts){ return ts && ts.toMillis ? ts.toMillis() : 0; }
+
+  function loadRooms(role){
+    var rs = roomsState[role];
+    if(rs.status==="loading") return;
+    rs.status = "loading"; rs.error = "";
+    render();
+    var db, userId = FIRESTORE_USER[role], termId;
+    Promise.resolve().then(function(){
+      db = getDb();
+      return db.collection("terms").where("is_current","==",true).get();
+    }).then(function(snap){
+      if(snap.size!==1) throw new Error("ต้องมีภาคเรียนปัจจุบัน (is_current = true) พอดี 1 ภาค แต่พบ "+snap.size);
+      termId = snap.docs[0].id;
+      return db.collection("enrollments").where("user_id","==",userId).where("term_id","==",termId).get();
+    }).then(function(snap){
+      var ids = [];
+      snap.forEach(function(d){ var c = d.data().course_id; if(ids.indexOf(c)===-1) ids.push(c); });
+      return Promise.all(ids.map(function(id){ return db.collection("chatRooms").doc(id).get(); }));
+    }).then(function(docs){
+      rs.rooms = docs.filter(function(d){ return d.exists; }).map(function(d){ var r = d.data(); r.id = d.id; return r; });
+      rs.rooms.sort(function(a,b){ return millisOf(b.last_message_at) - millisOf(a.last_message_at); });
+      rs.status = "ready";
+    }).catch(function(err){
+      rs.status = "error";
+      rs.error = (err && err.message) ? err.message : String(err);
+    }).then(function(){ render(); });
+  }
+
+  function mentorBadgeByCount(n){
+    return n>0
+      ? '<span class="badge badge-mentor">👑 มีผู้แนะนำ '+n+' คน</span>'
+      : '<span class="badge badge-none">ยังไม่มีผู้แนะนำ</span>';
+  }
+
+  function roomsBody(role){
+    var rs = roomsState[role];
+    if(rs.status==="idle" || rs.status==="loading"){
+      return [1,2,3].map(function(){
+        return '<div class="card" aria-hidden="true"><div class="skeleton sk-line" style="width:30%"></div><div class="skeleton sk-line" style="width:70%"></div><div class="skeleton sk-line" style="width:45%"></div></div>';
+      }).join("");
+    }
+    if(rs.status==="error"){
+      return '<div class="empty"><div class="icon">⚠️</div><p>โหลดรายการห้องแชทไม่สำเร็จ กรุณาลองใหม่อีกครั้ง<br><span style="font-size:12px;color:var(--color-neutral-500)">'+escapeHtml(rs.error)+'</span></p>'
+        + '<button class="btn btn-secondary" data-action="retry-rooms" data-role="'+role+'">ลองอีกครั้ง</button></div>';
+    }
+    if(!rs.rooms.length){
+      return '<div class="empty"><div class="icon">💬</div><p>คุณยังไม่มีห้องแชทในภาคการศึกษานี้ เพราะยังไม่พบข้อมูลการลงทะเบียนวิชา</p>'
+        + '<button class="btn btn-ghost" data-action="retry-rooms" data-role="'+role+'">ตรวจสอบการลงทะเบียน</button></div>';
+    }
+    return rs.rooms.map(function(r){
+      return '<button class="card room-card" data-action="open-room" data-role="'+role+'" data-subject="'+escapeHtml(r.id)+'">'
+        + '<div class="room-code">'+escapeHtml(r.course_code)+'</div>'
+        + '<div class="room-name">'+escapeHtml(r.course_name)+'</div>'
+        + mentorBadgeByCount(r.mentor_count)
+        + '<div class="room-preview">'+escapeHtml(r.last_message_text ? r.last_message_sender_name+": "+r.last_message_text : "ยังไม่มีข้อความ")+'</div>'
         + '</button>';
     }).join("");
+  }
+
+  function renderRoomList(role){
     return '<div class="topbar"><span>ห้องแชทรายวิชา</span></div>'
-      + '<div class="scroll-area">'+items+'</div>'
+      + '<div class="scroll-area">'+roomsBody(role)+'</div>'
       + bottomTabs(role,"rooms");
   }
 
@@ -479,6 +552,7 @@
     if(cap) cap.textContent = CAPTIONS[state.role];
     var cs = document.getElementById("chat-scroll");
     if(cs) cs.scrollTop = cs.scrollHeight;
+    if(state.role!=="admin" && state[state.role].screen==="rooms" && roomsState[state.role].status==="idle") loadRooms(state.role);
   }
 
   function showToast(msg){
@@ -576,6 +650,8 @@
     if(!t) return;
     var action = t.dataset.action;
     if(action==="back-to-rooms"){ state[t.dataset.role].screen="rooms"; render(); }
+    else if(action==="retry-rooms"){ loadRooms(t.dataset.role); }
+    else if(action==="open-room" && !subjects[t.dataset.subject]){ showToast("หน้าห้องแชทยังเป็นข้อมูลจำลอง ยังไม่เชื่อมกับ Firestore"); }
     else if(action==="open-room" || action==="goto-chat"){ state[t.dataset.role].screen="chat"; state[t.dataset.role].subjectId=t.dataset.subject; render(); }
     else if(action==="tab"){
       var role=t.dataset.role, tab=t.dataset.tab;
