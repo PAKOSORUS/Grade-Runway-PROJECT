@@ -4,3 +4,4 @@
 
 node_modules/
 scripts/firebase-config.js
+**/firebase-config.web.js
